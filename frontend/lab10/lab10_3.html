@@ -1,0 +1,335 @@
+<!doctype html>
+<html lang="uk">
+    <head>
+        <meta charset="UTF-8" />
+        <title>Лабораторна робота: Сортування таблиць (Варіант 7)</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                margin: 30px;
+                background-color: #f9f9f9;
+                color: #333;
+            }
+            h2 {
+                color: #2c3e50;
+            }
+            .controls {
+                background: #fff;
+                padding: 20px;
+                border-radius: 8px;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+                margin-bottom: 20px;
+            }
+            label {
+                font-weight: bold;
+                margin-right: 15px;
+            }
+            select {
+                padding: 6px 12px;
+                font-size: 14px;
+                border-radius: 4px;
+                border: 1px solid #ccc;
+            }
+
+            /* Стилі для Таблиці */
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                background: #fff;
+                margin-top: 15px;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            }
+            th,
+            td {
+                border: 1px solid #ddd;
+                padding: 12px;
+                text-align: left;
+            }
+
+            /* Заголовки, на які можна клікати */
+            th {
+                background-color: #34495e;
+                color: white;
+                cursor: pointer;
+                user-select: none;
+                position: relative;
+            }
+            th:hover {
+                background-color: #415b76;
+            }
+
+            /* Стрілочки сортування */
+            th.sort-asc::after {
+                content: " ↑";
+                position: absolute;
+                right: 8px;
+            }
+            th.sort-desc::after {
+                content: " ↓";
+                position: absolute;
+                right: 8px;
+            }
+
+            tr:nth-child(even) {
+                background-color: #f2f2f2;
+            }
+            .info-text {
+                margin-top: 5px;
+                color: #666;
+                font-size: 13px;
+            }
+        </style>
+    </head>
+    <body>
+        <h2>Сортування даних предметної області (Варіант 7)</h2>
+        <p class="info-text">
+            Підказка: Оберіть таблицю у списку, а потім натискайте на заголовки
+            стовпчиків для сортування.
+        </p>
+
+        <div class="controls">
+            <label for="tableSelect">Оберіть таблицю:</label>
+            <select id="tableSelect" onchange="changeTable()">
+                <option value="services">Послуги (Довідник)</option>
+                <option value="customers">Замовники (Довідник)</option>
+                <option value="contracts">Договори (Зв'язувальна)</option>
+            </select>
+        </div>
+
+        <div id="tableContainer"></div>
+
+        <script>
+            // ==========================================
+            // ООП КЛАСИ (Інкапсуляція збережена)
+            // ==========================================
+
+            class Service {
+                #code;
+                #name;
+                #cost;
+                constructor(code, name, cost) {
+                    this.#code = code;
+                    this.#name = name;
+                    this.#cost = cost;
+                }
+
+                get code() {
+                    return this.#code;
+                }
+                get name() {
+                    return this.#name;
+                }
+                get cost() {
+                    return this.#cost;
+                }
+            }
+
+            class Customer {
+                #name;
+                #address;
+                #account;
+                constructor(name, address, account) {
+                    this.#name = name;
+                    this.#address = address;
+                    this.#account = account;
+                }
+
+                get name() {
+                    return this.#name;
+                }
+                get address() {
+                    return this.#address;
+                }
+                get account() {
+                    return this.#account;
+                }
+            }
+
+            class Contract {
+                #serviceIndex;
+                #customerIndex;
+                #quantity;
+                #deadline;
+                #endDate;
+                constructor(srvIdx, custIdx, qty, deadline, endDate) {
+                    this.#serviceIndex = srvIdx;
+                    this.#customerIndex = custIdx;
+                    this.#quantity = qty;
+                    this.#deadline = deadline;
+                    this.#endDate = endDate;
+                }
+                get serviceIndex() {
+                    return this.#serviceIndex;
+                }
+                get customerIndex() {
+                    return this.#customerIndex;
+                }
+                get quantity() {
+                    return this.#quantity;
+                }
+                get deadline() {
+                    return this.#deadline;
+                }
+                get endDate() {
+                    return this.#endDate;
+                }
+            }
+
+            // ==========================================
+            // ГЕНЕРАЦІЯ МАСИВІВ (По 20 елементів)
+            // ==========================================
+            const servicesArray = [];
+            const customersArray = [];
+            const contractsArray = [];
+
+            const serviceTypes = [
+                "Консалтинг",
+                "Аудит",
+                "IT-Супровід",
+                "Юридичний захист",
+                "Маркетинг",
+            ];
+            const companyNames = [
+                "ТОВ Альфа",
+                "ПП Вектор",
+                "АТ Світанок",
+                "ФОП Олійник",
+                "Корпорація Спейс",
+            ];
+
+            // Заповнюємо довідники випадковими/напіввипадковими даними для наочності сортування
+            for (let i = 0; i < 20; i++) {
+                // Міняємо порядок цифр, щоб вартість і шифри не йшли ідеально по порядку
+                const randomModifier = (i * 7) % 20;
+                servicesArray.push(
+                    new Service(
+                        `SRV-${200 - randomModifier}`,
+                        `${serviceTypes[i % serviceTypes.length]} В-${i + 1}`,
+                        1500 + randomModifier * 250,
+                    ),
+                );
+                customersArray.push(
+                    new Customer(
+                        `${companyNames[(i + 2) % companyNames.length]} (Клієнт ${randomModifier + 1})`,
+                        `м. Київ, буд. ${10 + randomModifier}`,
+                        `UA7730000000026000000${99 - i}`,
+                    ),
+                );
+            }
+
+            // Заповнюємо зв'язувальні договори
+            for (let i = 0; i < 20; i++) {
+                contractsArray.push(
+                    new Contract(
+                        i,
+                        (i + 5) % 20,
+                        1 + ((i * 3) % 7),
+                        `${10 + (i % 15)}-06-2026`,
+                        `28-06-2026`,
+                    ),
+                );
+            }
+
+            // ==========================================
+            // ЗМІННІ ДЛЯ ЗБЕРЕЖЕННЯ СТАНУ СОРТУВАННЯ
+            // ==========================================
+            let currentSortColumn = null; // Яку колонку зараз сортуємо
+            let isAscending = true; // Напрямок: true - зростання, false - зменшення
+
+            // Скидання сортування при зміні таблиці
+            function changeTable() {
+                currentSortColumn = null;
+                isAscending = true;
+                renderTable();
+            }
+
+            // Головна функція сортування масивів
+            function sortData(array, propertyExtractor, columnIndex) {
+                if (currentSortColumn === columnIndex) {
+                    // Якщо клікнули на той самий стовпчик — міняємо напрямок
+                    isAscending = !isAscending;
+                } else {
+                    // Якщо на новий — починаємо зі зростання
+                    currentSortColumn = columnIndex;
+                    isAscending = true;
+                }
+
+                array.sort((a, b) => {
+                    let valA = propertyExtractor(a);
+                    let valB = propertyExtractor(b);
+
+                    // Якщо сортуємо рядки, переводимо в нижній регістр для коректності
+                    if (typeof valA === "string") valA = valA.toLowerCase();
+                    if (typeof valB === "string") valB = valB.toLowerCase();
+
+                    if (valA < valB) return isAscending ? -1 : 1;
+                    if (valA > valB) return isAscending ? 1 : -1;
+                    return 0;
+                });
+
+                renderTable();
+            }
+
+            // ==========================================
+            // ВІДОБРАЖЕННЯ ТАБЛИЦІ
+            // ==========================================
+            function renderTable() {
+                const selectedTable =
+                    document.getElementById("tableSelect").value;
+                const container = document.getElementById("tableContainer");
+                let html = "<table>";
+
+                if (selectedTable === "services") {
+                    // Визначаємо заголовки та правила сортування для кожної колонки Послуг
+                    html += `
+                    <tr>
+                        <th onclick="sortData(servicesArray, obj => obj.code, 0)" class="${currentSortColumn === 0 ? (isAscending ? "sort-asc" : "sort-desc") : ""}">Шифр послуги</th>
+                        <th onclick="sortData(servicesArray, obj => obj.name, 1)" class="${currentSortColumn === 1 ? (isAscending ? "sort-asc" : "sort-desc") : ""}">Найменування</th>
+                        <th onclick="sortData(servicesArray, obj => obj.cost, 2)" class="${currentSortColumn === 2 ? (isAscending ? "sort-asc" : "sort-desc") : ""}">Вартість</th>
+                    </tr>`;
+
+                    servicesArray.forEach((item) => {
+                        html += `<tr><td>${item.code}</td><td>${item.name}</td><td>${item.cost} грн</td></tr>`;
+                    });
+                } else if (selectedTable === "customers") {
+                    // Заголовки та правила сортування для Замовників
+                    html += `
+                    <tr>
+                        <th onclick="sortData(customersArray, obj => obj.name, 0)" class="${currentSortColumn === 0 ? (isAscending ? "sort-asc" : "sort-desc") : ""}">Назва замовника</th>
+                        <th onclick="sortData(customersArray, obj => obj.address, 1)" class="${currentSortColumn === 1 ? (isAscending ? "sort-asc" : "sort-desc") : ""}">Адреса</th>
+                        <th onclick="sortData(customersArray, obj => obj.account, 2)" class="${currentSortColumn === 2 ? (isAscending ? "sort-asc" : "sort-desc") : ""}">Розрахунковий рахунок</th>
+                    </tr>`;
+
+                    customersArray.forEach((item) => {
+                        html += `<tr><td>${item.name}</td><td>${item.address}</td><td>${item.account}</td></tr>`;
+                    });
+                } else if (selectedTable === "contracts") {
+                    // Для договорів підтягуємо назви з масивів-довідників за індексами
+                    html += `
+                    <tr>
+                        <th onclick="sortData(contractsArray, obj => servicesArray[obj.serviceIndex]?.name || '', 0)" class="${currentSortColumn === 0 ? (isAscending ? "sort-asc" : "sort-desc") : ""}">Послуга</th>
+                        <th onclick="sortData(contractsArray, obj => customersArray[obj.customerIndex]?.name || '', 1)" class="${currentSortColumn === 1 ? (isAscending ? "sort-asc" : "sort-desc") : ""}">Замовник</th>
+                        <th onclick="sortData(contractsArray, obj => obj.quantity, 2)" class="${currentSortColumn === 2 ? (isAscending ? "sort-asc" : "sort-desc") : ""}">Кількість (шт)</th>
+                        <th onclick="sortData(contractsArray, obj => obj.deadline, 3)" class="${currentSortColumn === 3 ? (isAscending ? "sort-asc" : "sort-desc") : ""}">Термін виконання</th>
+                    </tr>`;
+
+                    contractsArray.forEach((item) => {
+                        const sName = servicesArray[item.serviceIndex]
+                            ? servicesArray[item.serviceIndex].name
+                            : "Невідомо";
+                        const cName = customersArray[item.customerIndex]
+                            ? customersArray[item.customerIndex].name
+                            : "Невідомо";
+                        html += `<tr><td>${sName}</td><td>${cName}</td><td>${item.quantity}</td><td>${item.deadline}</td></tr>`;
+                    });
+                }
+
+                html += "</table>";
+                container.innerHTML = html;
+            }
+
+            // Перший запуск програми при завантаженні сторінки
+            renderTable();
+        </script>
+    </body>
+</html>

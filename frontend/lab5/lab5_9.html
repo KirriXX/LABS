@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="uk">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Анімація - Варіант 7</title>
+        <style>
+            body {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100vh;
+                margin: 0;
+                background-color: #f5f5f5;
+                font-family: Arial, sans-serif;
+            }
+
+            .area {
+                width: 400px;
+                height: 400px;
+                border: 2px solid #ccc;
+                position: relative;
+                background-color: white;
+            }
+
+            .box {
+                width: 80px;
+                height: 80px;
+                background-color: #3498db;
+                color: white;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-weight: bold;
+                position: absolute;
+
+                animation-name: move;
+                animation-duration: 6s;
+                animation-timing-function: linear;
+                animation-iteration-count: infinite;
+            }
+
+            @keyframes move {
+                /* Початкова точка (лівий низ) -> Вгору -> По діагоналі вниз (центр) -> Вгору (правий верх) -> По діагоналі в початок
+            */
+
+                /* 0% - Лівий нижній кут */
+                0% {
+                    bottom: 20px;
+                    left: 20px;
+                    transform: rotate(0deg);
+                }
+
+                /* 25% - Лівий верхній кут */
+                25% {
+                    bottom: 300px;
+                    left: 20px;
+                    transform: rotate(-10deg); /* Поворот проти стрілки */
+                }
+
+                /* 50% - Правий нижній кут (рух по діагоналі) */
+                50% {
+                    bottom: 20px;
+                    left: 300px;
+                    transform: rotate(-20deg);
+                }
+
+                /* 75% - Правий верхній кут (рух вгору) */
+                75% {
+                    bottom: 300px;
+                    left: 300px;
+                    transform: rotate(-30deg);
+                }
+
+                /* 100% - Повернення в лівий нижній кут */
+                100% {
+                    bottom: 20px;
+                    left: 20px;
+                    transform: rotate(-40deg);
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="area">
+            <div class="box"></div>
+        </div>
+    </body>
+</html>

@@ -1,0 +1,353 @@
+<!doctype html>
+<html lang="uk">
+    <head>
+        <meta charset="UTF-8" />
+        <title>Лабораторна робота: Статистика даних (Варіант 7)</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                margin: 30px;
+                background-color: #f9f9f9;
+                color: #333;
+            }
+            h2 {
+                color: #2c3e50;
+            }
+            .controls,
+            .stats-container {
+                background: #fff;
+                padding: 20px;
+                border-radius: 8px;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+                margin-bottom: 20px;
+            }
+            .stats-container {
+                background-color: #e8f8f5;
+                border-left: 5px solid #1abc9c;
+            }
+            .stats-title {
+                font-weight: bold;
+                color: #16a085;
+                margin-bottom: 10px;
+                font-size: 16px;
+            }
+            .stat-item {
+                margin-bottom: 8px;
+                font-size: 14px;
+            }
+            .stat-value {
+                font-weight: bold;
+                color: #2c3e50;
+            }
+
+            label {
+                font-weight: bold;
+                margin-right: 15px;
+                display: inline-block;
+                margin-bottom: 5px;
+            }
+            select,
+            input {
+                padding: 6px 12px;
+                font-size: 14px;
+                border-radius: 4px;
+                border: 1px solid #ccc;
+                margin-bottom: 10px;
+                width: 100%;
+                box-sizing: border-box;
+            }
+            .main-select {
+                width: auto;
+            }
+
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                background: #fff;
+                margin-top: 15px;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            }
+            th,
+            td {
+                border: 1px solid #ddd;
+                padding: 10px;
+                text-align: left;
+            }
+            th {
+                background-color: #34495e;
+                color: white;
+            }
+            tr:nth-child(even) {
+                background-color: #f2f2f2;
+            }
+        </style>
+    </head>
+    <body>
+        <h2>Аналітика та статистика предметної області (Варіант 7)</h2>
+
+        <div class="controls">
+            <label for="tableSelect"
+                >Оберіть таблицю для перегляду аналітики:</label
+            >
+            <select id="tableSelect" class="main-select" onchange="renderAll()">
+                <option value="services">Послуги (Довідник)</option>
+                <option value="customers">Замовники (Довідник)</option>
+                <option value="contracts">Договори (Зв'язувальна)</option>
+            </select>
+        </div>
+
+        <div class="stats-container" id="statsWidget"></div>
+
+        <div id="tableContainer" style="overflow-x: auto"></div>
+
+        <script>
+            // ==========================================
+            // КЛАСИ (ІНКАПСУЛЯЦІЯ ЗБЕРЕЖЕНА)
+            // ==========================================
+            class Service {
+                #code;
+                #name;
+                #cost;
+                constructor(code, name, cost) {
+                    this.#code = code;
+                    this.#name = name;
+                    this.#cost = cost;
+                }
+                get code() {
+                    return this.#code;
+                }
+                get name() {
+                    return this.#name;
+                }
+                get cost() {
+                    return this.#cost;
+                }
+            }
+
+            class Customer {
+                #name;
+                #address;
+                #account;
+                constructor(name, address, account) {
+                    this.#name = name;
+                    this.#address = address;
+                    this.#account = account;
+                }
+                get name() {
+                    return this.#name;
+                }
+                get address() {
+                    return this.#address;
+                }
+                get account() {
+                    return this.#account;
+                }
+            }
+
+            class Contract {
+                #serviceIndex;
+                #customerIndex;
+                #quantity;
+                #deadline;
+                constructor(srvIdx, custIdx, qty, deadline) {
+                    this.#serviceIndex = Number(srvIdx);
+                    this.#customerIndex = Number(custIdx);
+                    this.#quantity = Number(qty);
+                    this.#deadline = deadline;
+                }
+                get serviceIndex() {
+                    return this.#serviceIndex;
+                }
+                get customerIndex() {
+                    return this.#customerIndex;
+                }
+                get quantity() {
+                    return this.#quantity;
+                }
+                get deadline() {
+                    return this.#deadline;
+                }
+            }
+
+            // ==========================================
+            // МАСИВИ З ДАНИМИ (По 20 елементів)
+            // ==========================================
+            const servicesArray = [];
+            const customersArray = [];
+            const contractsArray = [];
+
+            const serviceTypes = [
+                "Консалтинг",
+                "Аудит",
+                "IT-Супровід",
+                "Маркетинг",
+            ];
+            // Спеціально міксуємо банки у розрахункових рахунках для цікавої статистики
+            const banks = ["UA773000", "UA445111", "UA223333"];
+
+            for (let i = 0; i < 20; i++) {
+                servicesArray.push(
+                    new Service(
+                        `SRV-${101 + i}`,
+                        serviceTypes[i % serviceTypes.length] +
+                            ` Пакет ${i + 1}`,
+                        2000 + i * 350,
+                    ),
+                );
+                customersArray.push(
+                    new Customer(
+                        `Замовник ${i + 1}`,
+                        `м. Київ, офіс ${i + 1}`,
+                        `${banks[i % banks.length]}000002600${10 + i}`,
+                    ),
+                );
+            }
+            for (let i = 0; i < 20; i++) {
+                contractsArray.push(
+                    new Contract(i % 5, (i + 2) % 6, 1 + (i % 5), `2026-06-15`),
+                );
+            }
+
+            // ==========================================
+            // ГОЛОВНА ЛОГІКА ОБЧИСЛЕННЯ СТАТИСТИКИ
+            // ==========================================
+            function calculateStatistics(target) {
+                let statsHtml = "";
+
+                if (target === "services") {
+                    if (servicesArray.length === 0)
+                        return "<div class='stats-title'>Немає даних для розрахунку</div>";
+
+                    // 1. Середня вартість послуги
+                    const totalCost = servicesArray.reduce(
+                        (sum, item) => sum + item.cost,
+                        0,
+                    );
+                    const avgCost = (totalCost / servicesArray.length).toFixed(
+                        2,
+                    );
+
+                    // 2. Максимальна вартість послуги
+                    const maxCostItem = servicesArray.reduce(
+                        (max, item) => (item.cost > max.cost ? item : max),
+                        servicesArray[0],
+                    );
+
+                    // 3. Мінімальна вартість послуги
+                    const minCostItem = servicesArray.reduce(
+                        (min, item) => (item.cost < min.cost ? item : min),
+                        servicesArray[0],
+                    );
+
+                    statsHtml = `
+                    <div class="stats-title">📊 Статистичний звіт: Послуги</div>
+                    <div class="stat-item">1. Середня вартість послуги у прайсі: <span class="stat-value">${avgCost} грн</span></div>
+                    <div class="stat-item">2. Найдорожча послуга: <span class="stat-value">"${maxCostItem.name}" (${maxCostItem.cost} грн)</span></div>
+                    <div class="stat-item">3. Найдешевша послуга: <span class="stat-value">"${minCostItem.name}" (${minCostItem.cost} грн)</span></div>`;
+                } else if (target === "customers") {
+                    if (customersArray.length === 0)
+                        return "<div class='stats-title'>Немає даних для розрахунку</div>";
+
+                    // 1. Загальна кількість клієнтів
+                    const totalCustomers = customersArray.length;
+
+                    // 2. Кількість клієнтів, чий рахунок починається на UA773000 (наприклад, умовний ПриватБанк)
+                    const privatBankCount = customersArray.filter((c) =>
+                        c.account.startsWith("UA773000"),
+                    ).length;
+
+                    // 3. Відсоток клієнтів цього банку від загальної кількості
+                    const percentage = (
+                        (privatBankCount / totalCustomers) *
+                        100
+                    ).toFixed(1);
+
+                    statsHtml = `
+                    <div class="stats-title">📊 Статистичний звіт: Замовники</div>
+                    <div class="stat-item">1. Всього зареєстровано контрагентів: <span class="stat-value">${totalCustomers} компаній</span></div>
+                    <div class="stat-item">2. Кількість клієнтів із розрахунковим рахунком в UA773000: <span class="stat-value">${privatBankCount}</span></div>
+                    <div class="stat-item">3. Відсоток користувачів банку UA773000 від загальної кількості: <span class="stat-value">${percentage}%</span></div>`;
+                } else if (target === "contracts") {
+                    if (contractsArray.length === 0)
+                        return "<div class='stats-title'>Немає даних для розрахунку</div>";
+
+                    // 1. Загальний обсяг проданих послуг (штук)
+                    const totalQty = contractsArray.reduce(
+                        (sum, item) => sum + item.quantity,
+                        0,
+                    );
+
+                    // 2. Загальна сума фінансового обороту за всіма договорами
+                    const totalTurnover = contractsArray.reduce((sum, item) => {
+                        const srv = servicesArray[item.serviceIndex];
+                        const price = srv ? srv.cost : 0;
+                        return sum + price * item.quantity;
+                    }, 0);
+
+                    // 3. Договір з найбільшою кількістю куплених послуг за раз
+                    const maxQtyContract = contractsArray.reduce(
+                        (max, item) =>
+                            item.quantity > max.quantity ? item : max,
+                        contractsArray[0],
+                    );
+
+                    statsHtml = `
+                    <div class="stats-title">📊 Статистичний звіт: Договори (Зв'язані дані)</div>
+                    <div class="stat-item">1. Сумарний фінансовий оборот фірми: <span class="stat-value">${totalTurnover.toLocaleString()} грн</span></div>
+                    <div class="stat-item">2. Загальна кількість наданих послуг: <span class="stat-value">${totalQty} шт.</span></div>
+                    <div class="stat-item">3. Максимальний обсяг в одному договорі: <span class="stat-value">${maxQtyContract.quantity} шт.</span></div>`;
+                }
+
+                return statsHtml;
+            }
+
+            // ==========================================
+            // РЕНДЕРИНГ ІНТЕРФЕЙСУ
+            // ==========================================
+            function renderAll() {
+                const currentTable =
+                    document.getElementById("tableSelect").value;
+
+                // Оновлюємо віджет статистики
+                document.getElementById("statsWidget").innerHTML =
+                    calculateStatistics(currentTable);
+
+                // Оновлюємо саму таблицю
+                renderTable(currentTable);
+            }
+
+            function renderTable(target) {
+                const container = document.getElementById("tableContainer");
+                let html = "<table>";
+
+                if (target === "services") {
+                    html += `<tr><th>Шифр</th><th>Найменування</th><th>Вартість</th></tr>`;
+                    servicesArray.forEach((item) => {
+                        html += `<tr><td>${item.code}</td><td>${item.name}</td><td>${item.cost} грн</td></tr>`;
+                    });
+                } else if (target === "customers") {
+                    html += `<tr><th>Назва</th><th>Адреса</th><th>Рахунок</th></tr>`;
+                    customersArray.forEach((item) => {
+                        html += `<tr><td>${item.name}</td><td>${item.address}</td><td>${item.account}</td></tr>`;
+                    });
+                } else if (target === "contracts") {
+                    html += `<tr><th>Послуга</th><th>Замовник</th><th>Кількість</th><th>Термін</th></tr>`;
+                    contractsArray.forEach((item) => {
+                        const sName = servicesArray[item.serviceIndex]
+                            ? servicesArray[item.serviceIndex].name
+                            : "Невідомо";
+                        const cName = customersArray[item.customerIndex]
+                            ? customersArray[item.customerIndex].name
+                            : "Невідомо";
+                        html += `<tr><td>${sName}</td><td>${cName}</td><td>${item.quantity} шт.</td><td>${item.deadline}</td></tr>`;
+                    });
+                }
+                html += "</table>";
+                container.innerHTML = html;
+            }
+
+            // Перший запуск програми
+            renderAll();
+        </script>
+    </body>
+</html>

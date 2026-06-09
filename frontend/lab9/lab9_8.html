@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="uk">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Анімація через JS - Варіант 7</title>
+        <style>
+            body {
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                height: 100vh;
+                margin: 0;
+                background-color: #f5f5f5;
+                font-family: Arial, sans-serif;
+                gap: 20px;
+            }
+
+            .area {
+                width: 400px;
+                height: 400px;
+                border: 2px solid #ccc;
+                position: relative;
+                background-color: white;
+            }
+
+            .box {
+                width: 80px;
+                height: 80px;
+                background-color: #3498db;
+                color: white;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-weight: bold;
+                position: absolute;
+                /* Початкові стилі відповідають 0% */
+                bottom: 20px;
+                left: 20px;
+                transform: rotate(0deg);
+            }
+
+            /* Стилізація кнопки керування */
+            .control-btn {
+                padding: 10px 30px;
+                font-size: 16px;
+                font-weight: bold;
+                color: white;
+                background-color: #28a745;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+                box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+                transition: background 0.2s;
+            }
+            .control-btn.active {
+                background-color: #dc3545;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="area">
+            <div id="animatedBox" class="box">JS</div>
+        </div>
+
+        <button id="toggleBtn" class="control-btn" onclick="toggleAnimation()">
+            Старт
+        </button>
+
+        <script>
+            const box = document.getElementById("animatedBox");
+            const toggleBtn = document.getElementById("toggleBtn");
+
+            let animationIntervalId = null;
+
+            // Загальний час одного повного циклу — 6 секунд (6000 мс), як і в CSS
+            const totalDuration = 6000;
+            // Кількість кадрів на секунду (FPS). 60 кадрів забезпечує ідеальну плавність
+            const fps = 60;
+            const intervalTime = 1000 / fps; // ~16.67 мс на один кадр
+            const totalFrames = (totalDuration / 1000) * fps; // Всього 360 кадрів на цикл
+
+            let currentFrame = 0;
+
+            // Функція розрахунку проміжних значень (лінійна інтерполяція)
+            function interpolate(start, end, progress) {
+                return start + (end - start) * progress;
+            }
+
+            // Основна функція промальовування одного кадру
+            function updateAnimationStep() {
+                currentFrame++;
+                // Коли доходимо до кінця, скидаємо лічильник кадрів для нескінченного циклу (infinite)
+                if (currentFrame > totalFrames) {
+                    currentFrame = 1;
+                }
+
+                // Визначаємо поточний прогрес усього циклу (від 0 до 1)
+                const overallProgress = currentFrame / totalFrames;
+
+                let currentLeft, currentBottom, currentRotation;
+
+                // Розбиваємо весь шлях на 4 чверті (по 25% кожна), аналогічно до keyframes
+                if (overallProgress <= 0.25) {
+                    // 0% -> 25% (Рух вгору вздовж лівого краю)
+                    const segmentProgress = overallProgress / 0.25;
+                    currentLeft = 20;
+                    currentBottom = interpolate(20, 300, segmentProgress);
+                    currentRotation = interpolate(0, -10, segmentProgress);
+                } else if (overallProgress <= 0.5) {
+                    // 25% -> 50% (Рух по діагоналі в правий нижній кут)
+                    const segmentProgress = (overallProgress - 0.25) / 0.25;
+                    currentLeft = interpolate(20, 300, segmentProgress);
+                    currentBottom = interpolate(300, 20, segmentProgress);
+                    currentRotation = interpolate(-10, -20, segmentProgress);
+                } else if (overallProgress <= 0.75) {
+                    // 50% -> 75% (Рух вгору вздовж правого краю)
+                    const segmentProgress = (overallProgress - 0.5) / 0.25;
+                    currentLeft = 300;
+                    currentBottom = interpolate(20, 300, segmentProgress);
+                    currentRotation = interpolate(-20, -30, segmentProgress);
+                } else {
+                    // 75% -> 100% (Повернення по діагоналі в початкову точку)
+                    const segmentProgress = (overallProgress - 0.75) / 0.25;
+                    currentLeft = interpolate(300, 20, segmentProgress);
+                    currentBottom = interpolate(300, 20, segmentProgress);
+                    currentRotation = interpolate(-35, -40, segmentProgress);
+                }
+
+                // Застосовуємо розраховані координати до CSS-стилів елемента
+                box.style.left = currentLeft + "px";
+                box.style.bottom = currentBottom + "px";
+                box.style.transform = `rotate(${currentRotation}deg)`;
+            }
+
+            // Функція керування кнопкою Старт/Стоп
+            function toggleAnimation() {
+                if (animationIntervalId === null) {
+                    // Запуск анімації через setInterval
+                    animationIntervalId = setInterval(
+                        updateAnimationStep,
+                        intervalTime,
+                    );
+                    toggleBtn.textContent = "Стоп";
+                    toggleBtn.classList.add("active");
+                } else {
+                    // Зупинка анімації через clearInterval
+                    clearInterval(animationIntervalId);
+                    animationIntervalId = null;
+                    toggleBtn.textContent = "Старт";
+                    toggleBtn.classList.remove("active");
+                }
+            }
+        </script>
+    </body>
+</html>

@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="uk">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Куб: Об'єм та Площа (Варіант 7)</title>
+        <style>
+            body {
+                font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+                background-color: #f0f2f5;
+                margin: 0;
+                padding: 0;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100vh;
+            }
+            .container {
+                background: white;
+                padding: 30px;
+                border-radius: 12px;
+                box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+                max-width: 400px;
+                width: 100%;
+                box-sizing: border-box;
+            }
+            h2 {
+                color: #2c3e50;
+                margin-top: 0;
+                text-align: center;
+                border-bottom: 2px solid #3498db;
+                padding-bottom: 10px;
+            }
+            .form-group {
+                margin-bottom: 15px;
+            }
+            label {
+                display: block;
+                font-weight: 600;
+                margin-bottom: 5px;
+                color: #34495e;
+            }
+            input[type="number"],
+            input[type="text"] {
+                width: 100%;
+                padding: 10px;
+                border: 1px solid #ccc;
+                border-radius: 6px;
+                box-sizing: border-box;
+                font-size: 16px;
+            }
+            input:focus {
+                border-color: #3498db;
+                outline: none;
+                box-shadow: 0 0 5px rgba(52, 152, 219, 0.5);
+            }
+            .checkbox-group {
+                background: #f8f9fa;
+                padding: 12px;
+                border-radius: 6px;
+                border: 1px solid #e2e8f0;
+                margin-bottom: 15px;
+            }
+            .checkbox-item {
+                display: flex;
+                align-items: center;
+                margin-bottom: 8px;
+                cursor: pointer;
+            }
+            .checkbox-item:last-child {
+                margin-bottom: 0;
+            }
+            .checkbox-item input {
+                margin-right: 10px;
+                transform: scale(1.2);
+                cursor: pointer;
+            }
+            .error {
+                color: #e74c3c;
+                font-size: 14px;
+                font-weight: bold;
+                margin-top: 5px;
+                display: none;
+            }
+            .btn-reset {
+                width: 100%;
+                background-color: #95a5a6;
+                color: white;
+                border: none;
+                padding: 12px;
+                border-radius: 6px;
+                font-size: 16px;
+                font-weight: bold;
+                cursor: pointer;
+                transition: background 0.2s;
+                margin-top: 10px;
+            }
+            .btn-reset:hover {
+                background-color: #7f8c8d;
+            }
+            .result-field {
+                background-color: #eecfc;
+                font-weight: bold;
+                color: #2c3e50;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h2>Розрахунок куба</h2>
+
+            <form id="cubeForm">
+                <div class="form-group">
+                    <label for="side">Сторона куба (а):</label>
+                    <input
+                        type="number"
+                        id="side"
+                        step="any"
+                        placeholder="Введіть довжину сторони"
+                    />
+                    <div id="error-msg" class="error">
+                        Помилка: Сторона куба повинна бути додатним числом!
+                    </div>
+                </div>
+
+                <div class="checkbox-group">
+                    <label>Оберіть розрахункові параметри:</label>
+                    <label class="checkbox-item">
+                        <input type="checkbox" id="calcVolume" value="volume" />
+                        Розрахувати об'єм (V)
+                    </label>
+                    <label class="checkbox-item">
+                        <input type="checkbox" id="calcArea" value="area" />
+                        Розрахувати площу поверхні (S)
+                    </label>
+                </div>
+
+                <div class="form-group">
+                    <label for="volumeResult">Об'єм куба (V):</label>
+                    <input
+                        type="text"
+                        id="volumeResult"
+                        class="result-field"
+                        readonly
+                        placeholder="---"
+                    />
+                </div>
+
+                <div class="form-group">
+                    <label for="areaResult">Площа поверхні (S):</label>
+                    <input
+                        type="text"
+                        id="areaResult"
+                        class="result-field"
+                        readonly
+                        placeholder="---"
+                    />
+                </div>
+
+                <button type="reset" class="btn-reset" id="resetBtn">
+                    Очистити форму
+                </button>
+            </form>
+        </div>
+
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                // Отримання елементів DOM за допомогою getElementById
+                const sideInput = document.getElementById("side");
+                const calcVolumeChk = document.getElementById("calcVolume");
+                const calcAreaChk = document.getElementById("calcArea");
+                const volumeResult = document.getElementById("volumeResult");
+                const areaResult = document.getElementById("areaResult");
+                const errorMsg = document.getElementById("error-msg");
+                const form = document.getElementById("cubeForm");
+
+                function calculate() {
+                    const side = parseFloat(sideInput.value);
+
+                    if (sideInput.value.trim() !== "") {
+                        if (isNaN(side) || side <= 0) {
+                            errorMsg.style.display = "block";
+                            volumeResult.value = "Помилка";
+                            areaResult.value = "Помилка";
+                            return false;
+                        }
+                    }
+
+                    errorMsg.style.display = "none";
+
+                    if (calcVolumeChk.checked && !isNaN(side) && side > 0) {
+                        const volume = Math.pow(side, 3);
+                        volumeResult.value = volume.toFixed(4);
+                    } else {
+                        volumeResult.value = "---";
+                    }
+
+                    if (calcAreaChk.checked && !isNaN(side) && side > 0) {
+                        const area = 6 * Math.pow(side, 2);
+                        areaResult.value = area.toFixed(4);
+                    } else {
+                        areaResult.value = "---";
+                    }
+                }
+
+                sideInput.addEventListener("input", calculate);
+                calcVolumeChk.addEventListener("change", calculate);
+                calcAreaChk.addEventListener("change", calculate);
+
+                form.addEventListener("reset", function () {
+                    errorMsg.style.display = "none";
+                    volumeResult.value = "---";
+                    areaResult.value = "---";
+                });
+            });
+        </script>
+    </body>
+</html>

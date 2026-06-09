@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="uk">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Мерехтіння тексту (Варіант 7)</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                margin: 40px;
+                background-color: #f4f4f9;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 80vh;
+            }
+            /* Стилізація інтерактивного блоку */
+            .blinking-block {
+                width: 400px;
+                padding: 30px;
+                background-color: white;
+                border: 2px solid #ccc;
+                border-radius: 8px;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+                font-size: 20px;
+                font-weight: bold;
+                text-align: center;
+                line-height: 1.5;
+                cursor: pointer;
+                /* Початковий колір тексту (темно-сірий) */
+                color: #333333;
+                /* Плавно перемикаємо колір для гарного візуального ефекту */
+                transition: color 0.3s ease;
+            }
+        </style>
+    </head>
+    <body>
+        <div
+            id="textBlock"
+            class="blinking-block"
+            onmouseover="startBlinking()"
+            onmouseout="stopBlinking()"
+        >
+            Наведіть сюди курсор миші, щоб активувати мерехтіння кольору тексту
+            (інтервал 1.5 сек)!
+        </div>
+
+        <script>
+            // Змінна для зберігання ідентифікатора таймера
+            let blinkIntervalId = null;
+
+            function startBlinking() {
+                const block = document.getElementById("textBlock");
+
+                // Перевіряємо, чи таймер ще не запущений, щоб уникнути накладання інтервалів
+                if (blinkIntervalId === null) {
+                    // Запускаємо періодичне виконання коду кожні 1500 мілісекунд (1.5 секунди)
+                    blinkIntervalId = setInterval(() => {
+                        // Якщо поточний колір червоний (або rgb еквівалент), повертаємо початковий
+                        if (
+                            block.style.color === "rgb(220, 53, 69)" ||
+                            block.style.color === "red"
+                        ) {
+                            block.style.color = "#333333"; // Звичайний колір
+                        } else {
+                            block.style.color = "#dc3545"; // Яскраво-червоний колір для мерехтіння
+                        }
+                    }, 1500);
+                }
+            }
+
+            function stopBlinking() {
+                // Якщо таймер активний — зупиняємо його
+                if (blinkIntervalId !== null) {
+                    clearInterval(blinkIntervalId);
+                    blinkIntervalId = null; // Скидаємо змінну
+                }
+
+                // Обов'язково повертаємо початковий колір тексту після виходу курсору миші
+                const block = document.getElementById("textBlock");
+                block.style.color = "#333333";
+            }
+        </script>
+    </body>
+</html>

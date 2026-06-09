@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="uk">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>CSS Grid</title>
+        <style>
+            .grid-container {
+                display: grid;
+
+                grid-template-columns: repeat(6, 1fr);
+
+                grid-template-rows: repeat(5, 60px);
+
+                grid-gap: 0;
+                border: 1px solid black;
+                width: 600px;
+            }
+
+            .grid-container > div {
+                border: 1px solid black;
+            }
+
+            .block {
+                background-color: #d3d3d3;
+            }
+
+            .block-top {
+                grid-row-start: 1;
+                grid-row-end: 2;
+                grid-column-start: 2;
+                grid-column-end: span 4;
+            }
+
+            .block-left {
+                grid-row-start: 3;
+                grid-row-end: span 1;
+                grid-column-start: 1;
+                grid-column-end: 2;
+            }
+
+            .block-bottom {
+                grid-row-start: 5;
+                grid-row-end: 6;
+                grid-column-start: 2;
+                grid-column-end: span 4;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="grid-container">
+            <div></div>
+            <div class="block block-top"></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+
+            <div class="block block-left"></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+
+            <div></div>
+            <div class="block block-bottom"></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+    </body>
+</html>

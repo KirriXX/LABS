@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="uk">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Динамічний список тварин (Валідація кнопок)</title>
+        <style>
+            body {
+                font-family: "Segoe UI", Arial, sans-serif;
+                background-color: #f4f6f9;
+                padding: 30px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                min-height: 80vh;
+            }
+            .list-card {
+                background: white;
+                padding: 30px;
+                border-radius: 12px;
+                box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+                max-width: 450px;
+                width: 100%;
+                box-sizing: border-box;
+            }
+            h2 {
+                color: #2c3e50;
+                margin-top: 0;
+                border-bottom: 2px solid #3498db;
+                padding-bottom: 10px;
+                font-size: 22px;
+            }
+            .form-group {
+                margin-bottom: 20px;
+            }
+            label {
+                display: block;
+                font-weight: 600;
+                margin-bottom: 8px;
+                color: #34495e;
+            }
+            input[type="text"] {
+                width: 100%;
+                padding: 10px;
+                border: 1px solid #ccc;
+                border-radius: 6px;
+                box-sizing: border-box;
+                font-size: 16px;
+            }
+            input:focus {
+                border-color: #3498db;
+                outline: none;
+                box-shadow: 0 0 5px rgba(52, 152, 219, 0.3);
+            }
+            .btn-container {
+                display: flex;
+                gap: 10px;
+                margin-bottom: 20px;
+            }
+            .btn {
+                flex: 1;
+                font-size: 16px;
+                font-weight: bold;
+                padding: 12px;
+                border: none;
+                border-radius: 6px;
+                cursor: pointer;
+                transition: all 0.2s;
+                color: white;
+            }
+            .btn-add {
+                background-color: #2ecc71;
+            }
+            .btn-add:hover:not(:disabled) {
+                background-color: #27ae60;
+            }
+            .btn-remove {
+                background-color: #e74c3c;
+            }
+            .btn-remove:hover:not(:disabled) {
+                background-color: #c0392b;
+            }
+
+            /* Стилі для заблокованих кнопок */
+            .btn:disabled {
+                background-color: #bdc3c7 !important;
+                cursor: not-allowed;
+                opacity: 0.6;
+            }
+
+            /* Стилізація маркованого списку */
+            ul {
+                list-style-type: none;
+                padding: 0;
+                margin: 0;
+            }
+            li {
+                background: #f8f9fa;
+                margin-bottom: 8px;
+                padding: 10px 15px;
+                border-left: 4px solid #3498db;
+                border-radius: 0 6px 6px 0;
+                color: #2c3e50;
+                font-size: 16px;
+                word-wrap: break-word;
+                cursor: pointer;
+                user-select: none;
+                transition:
+                    background-color 0.2s,
+                    color 0.2s;
+                animation: fadeIn 0.3s ease;
+            }
+
+            /* Клас для виділеного елемента */
+            li.selected {
+                background: #2c3e50;
+                color: #f8f9fa;
+                border-left-color: #e74c3c;
+            }
+
+            @keyframes fadeIn {
+                from {
+                    opacity: 0;
+                    transform: translateY(-5px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="list-card">
+            <h2><label>Світ тварин</label></h2>
+
+            <form onsubmit="event.preventDefault()">
+                <div class="form-group">
+                    <label for="animalInput">Введіть назву тварини:</label>
+                    <input
+                        type="text"
+                        id="animalInput"
+                        placeholder="Наприклад: Лев, Панда, Дельфін..."
+                    />
+                </div>
+
+                <div class="btn-container">
+                    <!-- Додано атрибут disabled за замовчуванням -->
+                    <button
+                        type="button"
+                        id="addBtn"
+                        class="btn btn-add"
+                        disabled
+                    >
+                        Додати
+                    </button>
+                    <!-- Додано атрибут disabled за замовчуванням -->
+                    <button
+                        type="button"
+                        id="removeBtn"
+                        class="btn btn-remove"
+                        disabled
+                    >
+                        Видалити
+                    </button>
+                </div>
+            </form>
+
+            <ul id="animalsList"></ul>
+        </div>
+
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                const animalInput = document.getElementById("animalInput");
+                const addBtn = document.getElementById("addBtn");
+                const removeBtn = document.getElementById("removeBtn");
+                const list = document.getElementById("animalsList");
+
+                // Функція перевірки текстового поля для кнопки "Додати"
+                function checkInput() {
+                    const inputValue = animalInput.value.trim();
+                    // Якщо поле порожнє, disabled = true, якщо є текст — false
+                    addBtn.disabled = inputValue === "";
+                }
+
+                // Функція перевірки виділених елементів для кнопки "Видалити"
+                function checkSelection() {
+                    const selectedItems = list.querySelectorAll("li.selected");
+                    // Якщо виділених елементів 0, disabled = true, інакше — false
+                    removeBtn.disabled = selectedItems.length === 0;
+                }
+
+                // Відстежуємо введення тексту (подіяkeyup/input)
+                animalInput.addEventListener("input", checkInput);
+
+                // 1. Скрипт для кнопки "Додати"
+                addBtn.addEventListener("click", function () {
+                    const inputValue = animalInput.value.trim();
+
+                    if (inputValue !== "") {
+                        const newLi = document.createElement("li");
+                        newLi.textContent = inputValue;
+
+                        // Подія кліку на новий елемент списку
+                        newLi.addEventListener("click", function () {
+                            newLi.classList.toggle("selected");
+                            checkSelection(); // Перевіряємо кнопку видалення після кожного кліку
+                        });
+
+                        list.appendChild(newLi);
+
+                        // Очищення та скидання станів
+                        animalInput.value = "";
+                        addBtn.disabled = true; // Блокуємо кнопку знову, бо поле стало порожнім
+                        animalInput.focus();
+                    }
+                });
+
+                // 2. Скрипт для кнопки "Видалити"
+                removeBtn.addEventListener("click", function () {
+                    const selectedItems = list.querySelectorAll("li.selected");
+
+                    selectedItems.forEach(function (item) {
+                        list.removeChild(item);
+                    });
+
+                    // Після видалення виділених елементів обов'язково блокуємо кнопку знову
+                    checkSelection();
+                });
+            });
+        </script>
+    </body>
+</html>

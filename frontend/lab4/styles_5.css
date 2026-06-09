@@ -1,0 +1,42 @@
+.button {
+    border-radius: 5px;
+    box-shadow: 3px 2px #888888;
+}
+.send {
+    background-color: green;
+    border: 1px solid yellow;
+    color: white;
+    text-align: center;
+    img: url("sendicon.png");
+    align: right;
+}
+.cancel {
+    background-color: red;
+    border: 1px solid black;
+    color: white;
+    text-align: center;
+    img: url("cancelicon.png");
+    align: right;
+}
+.search {
+    background-color: #27ae60;
+    color: #ffffff;
+
+    /* 2. Збільшені габаритні розміри */
+    padding: 15px 35px;
+
+    /* 3. Збільшений розмір тексту */
+    font-size: 20px;
+    font-family: "Tahoma", sans-serif;
+    font-weight: bold;
+
+    /* 4. Еліптичні краї (округлі) */
+    border-radius: 50px;
+
+    /* 5. Відкидання кольорової тіні */
+    /* зміщення по X, по Y, розмиття, колір з прозорістю */
+    box-shadow: 0 8px 15px rgba(39, 174, 96, 0.4);
+
+    /* Додаткові налаштування */
+    border: none;
+}

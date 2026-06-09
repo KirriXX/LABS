@@ -1,0 +1,41 @@
+body {
+    background-image: url("pic1.jpg");
+    background-height: 200px;
+    background-weight: 200px;
+    background-repeat: repeat-y;
+}
+.block1 {
+    font-family: Arial, sans-serif;
+    font-size: 20mm;
+    font-weight: bold;
+    color: grey;
+    text-align: left;
+    text-decoration: underline;
+    background-color: yellow;
+    margin: 20px;
+    padding: 20px;
+}
+.block2 {
+    font-family: Arial, sans-serif;
+    font-size: 13pt;
+    font-style: italic;
+    font-weight: normal;
+    color: brown;
+    text-align: right;
+    text-decoration: underline;
+    background-color: grey;
+    margin: 20px;
+    padding: 20px;
+}
+.block3 {
+    font-family: Arial, sens-serif;
+    font-size: 7pc;
+    font-style: italic;
+    font-weight: bold;
+    color: yellow;
+    text-align: left;
+    text-decoration: underline;
+    background-color: brown;
+    margin: 20px;
+    padding: 20px;
+}

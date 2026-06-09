@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Макет сторінки (Flexbox версія)</title>
+        <style>
+            /* Базові налаштування */
+            body {
+                margin: 0;
+                font-family: sans-serif;
+                background-color: #cccccc;
+                height: 100vh;
+                display: flex;
+                flex-direction: row; /* Розміщуємо Nav зліва, а інше справа */
+            }
+
+            /* Бічна панель (Sidebar) */
+            .nav {
+                flex: 0 0 30%; /* flex-grow: 0, flex-shrink: 0, flex-basis: 30% */
+                background-color: yellow;
+                color: brown;
+                padding: 20px;
+                font-size: 24px;
+                display: flex;
+                align-items: flex-start;
+            }
+
+            /* Права частина макета */
+            .main-wrapper {
+                flex: 1; /* Займає решту 70% простору */
+                display: flex;
+                flex-direction: column; /* Вертикальне розташування: Header, Content, Footer */
+            }
+
+            /* Шапка */
+            .header-row {
+                flex: 0 0 80px; /* Фіксована висота */
+                display: flex;
+            }
+
+            .header {
+                flex: 0 0 50%; /* 35% від загальної ширини (~50% від 70% залишку) */
+                background-color: #e91e63;
+                color: #ffeb3b;
+                padding: 20px;
+                font-size: 24px;
+            }
+
+            /* Основний контент */
+            .content-row {
+                flex: 1; /* Займає весь доступний вертикальний простір */
+                display: flex;
+            }
+
+            .content {
+                flex: 0 0 71.4%; /* Корекція ширини (50% / 0.7) щоб відповідати макету Grid */
+                background-color: #2196f3;
+                color: white;
+                padding: 20px;
+                font-size: 24px;
+            }
+
+            /* Футер */
+            .footer {
+                flex: 0 0 60px; /* Фіксована висота */
+                background-color: #9c27b0;
+                color: yellow;
+                padding: 20px;
+                font-size: 24px;
+                display: flex;
+                align-items: center;
+            }
+
+            /* Додаткові класи для вирівнювання (демонстрація властивостей) */
+            .flex-container {
+                display: flex;
+                justify-content: flex-start;
+                align-content: stretch;
+                flex-wrap: nowrap;
+            }
+        </style>
+    </head>
+    <body>
+        <!-- Ліва колонка -->
+        <nav class="nav">Nav</nav>
+
+        <!-- Права частина, що містить Header, Content та Footer -->
+        <div class="main-wrapper">
+            <div class="header-row">
+                <header class="header">Header</header>
+                <!-- Порожня область (сіра) за рахунок фону body або відсутності блоку -->
+            </div>
+
+            <div class="content-row">
+                <main class="content">Content</main>
+                <!-- Порожня область справа -->
+            </div>
+
+            <footer class="footer">Footer</footer>
+        </div>
+    </body>
+</html>

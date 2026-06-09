@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="uk">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Нерухоме Слайд-шоу через setTimeout (Варіант 7)</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                background-color: #f4f4f9;
+                margin: 0;
+                padding: 40px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+            h2 {
+                color: #333;
+            }
+            /* Фіксована панель для трьох нерухомих тегів IMG */
+            .slideshow-panel {
+                display: flex;
+                gap: 15px;
+                background: #fff;
+                padding: 15px;
+                border: 4px solid #fff;
+                border-radius: 8px;
+                box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+            }
+            /* Статичні контейнери для зображень */
+            .static-img {
+                width: 150px;
+                height: 150px;
+                object-fit: cover;
+                border-radius: 4px;
+                background-color: #eee;
+                transition: opacity 0.2s ease; /* Легкий ефект для м'якості зміни контенту */
+            }
+            /* Стилізація єдиної кнопки */
+            .control-btn {
+                margin-top: 25px;
+                padding: 12px 30px;
+                font-size: 18px;
+                font-weight: bold;
+                color: white;
+                background-color: #28a745; /* Зелений для Старт */
+                border: none;
+                border-radius: 25px;
+                cursor: pointer;
+                box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+                transition: all 0.2s ease;
+            }
+            .control-btn.active {
+                background-color: #dc3545; /* Червоний для Стоп */
+            }
+            .control-btn:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 5px 10px rgba(0, 0, 0, 0.15);
+            }
+        </style>
+    </head>
+    <body>
+        <h2>Слайд-шоу: "Стрибки" контенту (Варіант 7)</h2>
+
+        <div class="slideshow-panel">
+            <img id="img1" class="static-img" alt="Слайд 1" />
+            <img id="img2" class="static-img" alt="Слайд 2" />
+            <img id="img3" class="static-img" alt="Слайд 3" />
+        </div>
+
+        <button id="toggleBtn" class="control-btn" onclick="toggleSlideshow()">
+            Старт
+        </button>
+
+        <script>
+            // 1. Створюємо базу з 15 унікальних адрес зображень
+            const totalImages = 15;
+            const globalImages = [];
+            for (let i = 1; i <= totalImages; i++) {
+                globalImages.push(`https://picsum.photos/150/150?random=${i}`);
+            }
+
+            // Поточний індекс зміщення в масиві (вказує, яка картинка зараз перша в показі)
+            let currentStartIndex = 0;
+            // Змінна для збереження ID таймера setTimeout
+            let slideshowTimeoutId = null;
+
+            const toggleBtn = document.getElementById("toggleBtn");
+
+            // 2. Функція оновлення контенту в нерухомих контейнерах
+            function updateImageContainers() {
+                // Вираховуємо індекси для 1-го, 2-го та 3-го контейнерів з урахуванням циклічності масиву (%)
+                const idx1 = currentStartIndex % totalImages;
+                const idx2 = (currentStartIndex + 1) % totalImages;
+                const idx3 = (currentStartIndex + 2) % totalImages;
+
+                // Просто змінюємо атрибут src у статичних елементів HTML
+                document.getElementById("img1").src = globalImages[idx1];
+                document.getElementById("img2").src = globalImages[idx2];
+                document.getElementById("img3").src = globalImages[idx3];
+            }
+
+            // 3. Рекурсивна функція циклу слайд-шоу
+            function slideshowLoop() {
+                // Рух «за годинниковою стрілкою» (вправо):
+                // Щоб картинки візуально стрибали вправо, наступний кадр має взяти елемент, що стоїть ПОЗАДУ.
+                // Тобто індекс стартової картинки зменшується. Якщо вийшли за нуль — повертаємося в кінець.
+                currentStartIndex =
+                    (currentStartIndex - 1 + totalImages) % totalImages;
+
+                // Оновлюємо картинки в контейнерах
+                updateImageContainers();
+
+                // Плануємо НАСТУПНИЙ поодинокий «стрибок» рівно через 1.5 секунди (1500 мс)
+                slideshowTimeoutId = setTimeout(slideshowLoop, 1500);
+            }
+
+            // 4. Логіка кнопки Старт/Стоп за допомогою setTimeout / clearTimeout
+            function toggleSlideshow() {
+                if (slideshowTimeoutId === null) {
+                    // --- ЗАПУСК (СТАРТ) ---
+                    // Запускаємо перший крок ланцюжка setTimeout
+                    slideshowTimeoutId = setTimeout(slideshowLoop, 1500);
+
+                    // Зміна інтерфейсу кнопки
+                    toggleBtn.textContent = "Стоп";
+                    toggleBtn.classList.add("active");
+                } else {
+                    // --- ЗУПИНКА (СТОП) ---
+                    // Перериваємо майбутній запланований запуск через clearTimeout
+                    clearTimeout(slideshowTimeoutId);
+                    slideshowTimeoutId = null; // Очищаємо індикатор
+
+                    // Повертаємо стан кнопки
+                    toggleBtn.textContent = "Старт";
+                    toggleBtn.classList.remove("active");
+                }
+            }
+
+            // Первинне заповнення нерухомих контейнерів картинками при завантаженні сторінки
+            updateImageContainers();
+        </script>
+    </body>
+</html>

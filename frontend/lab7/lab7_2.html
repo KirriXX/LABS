@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Hungary Cities - Variant 7 (z-index)</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                padding: 20px;
+                background-color: #f4f4f9;
+            }
+            form {
+                margin-bottom: 20px;
+            }
+            select {
+                width: 220px;
+                font-size: 16px;
+                padding: 5px;
+            }
+            /* Контейнер-обгортка для абсолютних шарів міст */
+            .city-layers-wrapper {
+                position: relative;
+                margin-top: 20px;
+                width: 100%;
+                max-width: 500px;
+                height: 420px; /* Фіксована висоту, бо блоки всередині абсолютні */
+            }
+            /* Картки міст накладені одна на одну як шари */
+            .city-layer-card {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                background: white;
+                border-radius: 8px;
+                padding: 15px;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+                border-left: 5px solid #2e6da4;
+                box-sizing: border-box;
+
+                /* Початковий шар для всіх карток */
+                z-index: 1;
+                /* Плавна зміна шарів при переключенні */
+                transition: z-index 0.2s ease;
+            }
+            .city-layer-card img {
+                width: 100%;
+                height: auto;
+                max-height: 230px;
+                object-fit: cover;
+                border-radius: 4px;
+            }
+            .city-layer-card h3 {
+                margin: 10px 0 5px 0;
+                color: #333;
+            }
+            .city-layer-card p {
+                color: #666;
+                font-size: 14px;
+                line-height: 1.4;
+            }
+        </style>
+    </head>
+    <body>
+        <!-- Ваша оригінальна форма згідно з варіантом -->
+        <form name="forma2">
+            <label for="city">Choose a city in Hungary:<br /></label>
+            <select size="4" name="city" id="city">
+                <option value="budapest" selected>Budapest</option>
+                <option value="debrecen">Debrecen</option>
+                <option value="szeged">Szeged</option>
+                <option value="pecs">Pecs</option>
+                <option value="miskolc">Miskolc</option>
+                <option value="eger">Eger</option>
+                <option value="tokaj">Tokaj</option>
+            </select>
+        </form>
+
+        <!-- Контейнер з інформаційними картками міст -->
+        <div class="city-layers-wrapper">
+            <!-- Будапешт за замовчуванням має вищий шар (z-index: 10), бо він виділений (selected) у списку -->
+            <div
+                id="layer-budapest"
+                class="city-layer-card"
+                style="z-index: 10"
+            >
+                <img
+                    src="https://images.unsplash.com/photo-1616432902940-b7a1acbc60b3?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                    alt="Budapest"
+                />
+                <h3>Будапешт (Budapest)</h3>
+                <p>
+                    Столиця Угорщини, перлина Дунаю. Відома своєю величчною
+                    архітектурою Парламенту, старовинними купальнями та
+                    унікальними руїн-барами.
+                </p>
+            </div>
+            <div id="layer-debrecen" class="city-layer-card">
+                <img
+                    src="https://images.unsplash.com/photo-1635856002421-1e4807295023?q=80&w=1674&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                    alt="Debrecen"
+                />
+                <h3>Дебрецен (Debrecen)</h3>
+                <p>
+                    Друге за величиною місто країни, культурний та релігійний
+                    центр. Відоме своїм костелом, термальними парками та
+                    університетом.
+                </p>
+            </div>
+            <div id="layer-szeged" class="city-layer-card">
+                <img
+                    src="https://images.unsplash.com/photo-1648676788509-4c45f772d46f?q=80&w=988&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                    alt="Szeged"
+                />
+                <h3>Сегед (Szeged)</h3>
+                <p>
+                    Місто сонця на півдні Угорщини. Славиться своєю неймовірною
+                    обітницею церквою (Катедральним собором), фестивалями просто
+                    неба та знаменитим супом халасле.
+                </p>
+            </div>
+            <div id="layer-pecs" class="city-layer-card">
+                <img
+                    src="https://images.unsplash.com/photo-1661975782597-6fc5aafce028?q=80&w=2231&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                    alt="Pecs"
+                />
+                <h3>Печ (Pecs)</h3>
+                <p>
+                    Старовинне місто біля підніжжя гір Мечек. Має багату
+                    ранньохристиянську спадщину, турецькі мечеті та відоме
+                    унікальною порцеляною Жолнаї.
+                </p>
+            </div>
+            <div id="layer-miskolc" class="city-layer-card">
+                <img
+                    src="https://images.unsplash.com/photo-1672491482892-a05c7d7d9e02?q=80&w=2071&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                    alt="Miskolc"
+                />
+                <h3>Мішкольц (Miskolc)</h3>
+                <p>
+                    Великий індустріальний та культурний центр. Головна
+                    туристична принада — унікальна у Європі термальна купальня у
+                    природних печерах (Мішкольцтапольца).
+                </p>
+            </div>
+            <div id="layer-eger" class="city-layer-card">
+                <img
+                    src="https://images.unsplash.com/photo-1637262223444-5c43e3c9c26c?q=80&w=1651&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                    alt="Eger"
+                />
+                <h3>Егер (Eger)</h3>
+                <p>
+                    Історичне місто, відоме своєю могутньою фортецею, бароковою
+                    архітектурою, найпівнічнішим турецьким мінаретом та червоним
+                    вином "Бича кров".
+                </p>
+            </div>
+            <div id="layer-tokaj" class="city-layer-card">
+                <img
+                    src="https://images.unsplash.com/photo-1729531720278-6d43e41126be?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                    alt="Tokaj"
+                />
+                <h3>Токай (Tokaj)</h3>
+                <p>
+                    Столиця знаменитого виноробного регіону, занесеного до
+                    списку ЮНЕСКО. Місце народження legendaрного солодкого
+                    білого вина Tokaji Aszú.
+                </p>
+            </div>
+        </div>
+
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                // Отримуємо елемент select за допомогою його ID
+                const selectElement = document.getElementById("city");
+
+                // Додаємо слухач події 'change'
+                selectElement.addEventListener("change", function () {
+                    // 1. Аналізуємо властивості selectedIndex та options масиву (як вимагає завдання)
+                    const idx = selectElement.selectedIndex;
+                    const option = selectElement.options[idx];
+
+                    // Отримуємо значення з властивості value обраного тегу option
+                    const cityName = option.value;
+
+                    // 2. Отримуємо масив (колекцію) усіх карток міст на сторінці
+                    const layers =
+                        document.getElementsByClassName("city-layer-card");
+
+                    // 3. За допомогою циклу скидаємо zIndex усіх міст до фонового рівня "1"
+                    for (let i = 0; i < layers.length; i++) {
+                        layers[i].style.zIndex = "1";
+                    }
+
+                    // 4. Знаходимо потрібну картку міста за згенерованим ID та піднімаємо її на передній план (zIndex = "10")
+                    const targetLayer = document.getElementById(
+                        "layer-" + cityName,
+                    );
+                    if (targetLayer) {
+                        targetLayer.style.zIndex = "10";
+                    }
+                });
+            });
+        </script>
+    </body>
+</html>

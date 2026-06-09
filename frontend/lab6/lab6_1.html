@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Макет сторінки (Grid)</title>
+        <style>
+            body {
+                margin: 0;
+                display: grid;
+
+                grid-template-columns: 30% 1fr;
+
+                grid-template-rows: 80px 1fr 60px;
+
+                grid-template-areas:
+                    "sidebar head"
+                    "sidebar main"
+                    "sidebar foot";
+                height: 100vh;
+
+                grid-gap: 0;
+                font-family: sans-serif;
+            }
+
+            nav,
+            header,
+            main,
+            footer {
+                padding: 20px;
+                font-weight: medium;
+                font-size: 24px;
+                display: flex;
+                align-items: flex-start; /* vertical-align: top */
+                justify-content: flex-start; /* text-align: left */
+            }
+
+            .nav {
+                grid-area: sidebar;
+                background-color: yellow;
+                color: brown;
+            }
+
+            .header {
+                grid-area: head;
+                background-color: #e91e63;
+                color: #ffeb3b;
+            }
+
+            .content {
+                grid-area: main;
+                background-color: #2196f3;
+                color: white;
+            }
+
+            .footer {
+                grid-area: foot;
+                background-color: #9c27b0;
+                color: yellow;
+            }
+        </style>
+    </head>
+    <body>
+        <nav class="nav">Nav</nav>
+        <header class="header">Header</header>
+        <main class="content">Content</main>
+        <footer class="footer">Footer</footer>
+    </body>
+</html>

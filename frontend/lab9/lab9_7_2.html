@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="uk">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Стрибаючий параметр через setTimeout (Варіант 7)</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                margin: 0;
+                padding: 0;
+                background-color: #f4f4f9;
+                min-height: 100vh;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+
+            /* Стилі для 4 кутових блоків */
+            .corner-block {
+                width: 150px;
+                height: 150px;
+                background-color: white;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                font-weight: bold;
+                font-size: 16px;
+                color: #555;
+                border-radius: 8px;
+                border: 4px solid #e0e0e0; /* Початковий нейтральний колір бордюру */
+                transition: border-color 0.2s ease;
+                position: fixed;
+                box-sizing: border-box;
+            }
+
+            /* Розташування по кутах сторінки */
+            #block0 {
+                top: 20px;
+                left: 20px;
+            } /* Верхній лівий */
+            #block1 {
+                top: 20px;
+                right: 20px;
+            } /* Верхній правий */
+            #block2 {
+                bottom: 20px;
+                right: 20px;
+            } /* Нижній правий */
+            #block3 {
+                bottom: 20px;
+                left: 20px;
+            } /* Нижній лівий */
+
+            /* Активний стан (Варіант 7: колір бордюру) */
+            .corner-block.active {
+                border-color: #ff5722; /* Яскраво-помаранчевий бордюр */
+                color: #ff5722;
+            }
+
+            /* Стилізація кнопки керування */
+            .control-btn {
+                padding: 15px 40px;
+                font-size: 18px;
+                font-weight: bold;
+                color: white;
+                background-color: #28a745; /* Зелений для Старт */
+                border: none;
+                border-radius: 30px;
+                cursor: pointer;
+                box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+                transition: all 0.2s ease;
+                z-index: 10;
+            }
+            .control-btn.stop-state {
+                background-color: #dc3545; /* Червоний для Стоп */
+            }
+            .control-btn:hover {
+                transform: scale(1.05);
+                box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+            }
+        </style>
+    </head>
+    <body>
+        <div id="block0" class="corner-block">Блок 1</div>
+        <div id="block1" class="corner-block">Блок 2</div>
+        <div id="block2" class="corner-block">Блок 3</div>
+        <div id="block3" class="corner-block">Блок 4</div>
+
+        <button id="toggleBtn" class="control-btn" onclick="toggleJumping()">
+            Старт
+        </button>
+
+        <script>
+            let currentBlockIndex = 0;
+            // Змінна для збереження ідентифікатора поточного таймера setTimeout
+            let jumpingTimeoutId = null;
+
+            const toggleBtn = document.getElementById("toggleBtn");
+
+            // Рекурсивна функція циклу перестрибування параметру
+            function jumpingLoop() {
+                // 1. Прибираємо активний клас у попереднього блоку
+                document
+                    .getElementById(`block${currentBlockIndex}`)
+                    .classList.remove("active");
+
+                // 2. Зміщуємо індекс на один крок вперед за годинниковою стрілкою (0 -> 1 -> 2 -> 3 -> 0)
+                currentBlockIndex = (currentBlockIndex + 1) % 4;
+
+                // 3. Додаємо активний клас новому поточному блоку
+                document
+                    .getElementById(`block${currentBlockIndex}`)
+                    .classList.add("active");
+
+                // 4. РЕКУРСІЯ: Задаємо наступний поодинокий запуск через 1.5 секунди (1500 мс)
+                jumpingTimeoutId = setTimeout(jumpingLoop, 1500);
+            }
+
+            // Функція обробки натискання на кнопку Старт/Стоп
+            function toggleJumping() {
+                if (jumpingTimeoutId === null) {
+                    // --- ЗАПУСК (СТАРТ) ---
+                    // Підсвічуємо перший блок одразу, щоб анімація не чекала перші 1.5 сек
+                    document
+                        .getElementById(`block${currentBlockIndex}`)
+                        .classList.add("active");
+
+                    // Плануємо перший крок перемикання через 1.5 секунди
+                    jumpingTimeoutId = setTimeout(jumpingLoop, 1500);
+
+                    // Оновлюємо стан кнопки
+                    toggleBtn.textContent = "Стоп";
+                    toggleBtn.classList.add("stop-state");
+                } else {
+                    // --- ЗУПИНКА (СТОП) ---
+                    // Скасовуємо наступний запланований виклик за допомогою clearTimeout()
+                    clearTimeout(jumpingTimeoutId);
+                    jumpingTimeoutId = null; // Повертаємо початкове значення
+
+                    // Прибираємо виділення з активного на момент зупинки блоку
+                    document
+                        .getElementById(`block${currentBlockIndex}`)
+                        .classList.remove("active");
+
+                    // Повертаємо стан кнопки
+                    toggleBtn.textContent = "Старт";
+                    toggleBtn.classList.remove("stop-state");
+                }
+            }
+        </script>
+    </body>
+</html>

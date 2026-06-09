@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="uk">
+    <head>
+        <meta charset="UTF-8" />
+        <title>Селективне меню на Checkbox</title>
+        <style>
+            body {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                min-height: 100vh;
+                margin: 0;
+                background-color: #f4f4f4;
+                font-family: sans-serif;
+                gap: 50px;
+            }
+
+            .menu {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+                background: #fff;
+                padding: 20px;
+                border-radius: 8px;
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            }
+
+            .menu label {
+                display: flex;
+                align-items: center;
+                cursor: pointer;
+                padding: 8px 15px;
+                border-radius: 4px;
+
+                border: 1px solid #eee;
+            }
+
+            .menu label:hover {
+                background-color: #f0f0f0;
+            }
+
+            /* Приховуємо самі чекбокси */
+            input[type="checkbox"] {
+                display: none;
+            }
+
+            #check1:not(:checked) ~ .canvas .b1,
+            #check2:not(:checked) ~ .canvas .b2,
+            #check3:not(:checked) ~ .canvas .b3,
+            #check4:not(:checked) ~ .canvas .b4,
+            #check5:not(:checked) ~ .canvas .b5 {
+                opacity: 0;
+                pointer-events: none;
+            }
+
+            #check1:checked ~ .menu label[for="check1"] {
+                background: #ffadad;
+            }
+            #check2:checked ~ .menu label[for="check2"] {
+                background: #caffbf;
+            }
+            #check3:checked ~ .menu label[for="check3"] {
+                background: #bdb2ff;
+            }
+            #check4:checked ~ .menu label[for="check4"] {
+                background: #9bf6ff;
+            }
+            #check5:checked ~ .menu label[for="check5"] {
+                background: #ffd6a5;
+            }
+
+            .canvas {
+                position: relative;
+                width: 300px;
+                height: 300px;
+                background: white;
+                border: 1px solid #ddd;
+                box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            }
+
+            .block {
+                position: absolute;
+                width: 120px;
+                height: 120px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border: 2px solid #000;
+                font-weight: bold;
+            }
+
+            .b1 {
+                top: 0;
+                left: 0;
+                background-color: #ffadad;
+                color: #900;
+                z-index: 1;
+            }
+            .b5 {
+                top: 0;
+                right: 0;
+                background-color: #ffd6a5;
+                color: #960;
+                z-index: 1;
+            }
+            .b2 {
+                bottom: 0;
+                left: 0;
+                background-color: #caffbf;
+                color: #060;
+                z-index: 1;
+            }
+            .b4 {
+                bottom: 0;
+                right: 0;
+                background-color: #9bf6ff;
+                color: #069;
+                z-index: 1;
+            }
+
+            .b3 {
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                width: 130px;
+                height: 130px;
+                background-color: #bdb2ff;
+                color: #303;
+                z-index: 2;
+            }
+        </style>
+    </head>
+    <body>
+        <input type="checkbox" id="check1" checked />
+        <input type="checkbox" id="check2" checked />
+        <input type="checkbox" id="check3" checked />
+        <input type="checkbox" id="check4" checked />
+        <input type="checkbox" id="check5" checked />
+
+        <nav class="menu">
+            <h3 style="margin-top: 0">Видимість:</h3>
+            <label for="check1">Блок 1 (Червоний)</label>
+            <label for="check2">Блок 2 (Зелений)</label>
+            <label for="check3">Блок 3 (Центр)</label>
+            <label for="check4">Блок 4 (Синій)</label>
+            <label for="check5">Блок 5 (Помаранчевий)</label>
+        </nav>
+
+        <div class="canvas">
+            <div class="block b3">Блок 3</div>
+            <div class="block b1">Блок 1</div>
+            <div class="block b5">Блок 5</div>
+            <div class="block b2">Блок 2</div>
+            <div class="block b4">Блок 4</div>
+        </div>
+    </body>
+</html>

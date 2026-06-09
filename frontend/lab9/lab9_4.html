@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="uk">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Пошук, Сортування та Статистика (Варіант 7)</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                margin: 40px;
+                background-color: #f4f4f9;
+                color: #333;
+            }
+            .container {
+                max-width: 700px;
+                background: white;
+                padding: 25px;
+                border-radius: 8px;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            }
+            .search-box {
+                width: 100%;
+                padding: 12px;
+                font-size: 16px;
+                border: 2px solid #007bff;
+                border-radius: 6px;
+                box-sizing: border-box;
+                margin-bottom: 20px;
+                outline: none;
+            }
+            .text-block {
+                font-size: 18px;
+                line-height: 1.6;
+                padding: 15px;
+                border: 1px solid #e0e0e0;
+                border-radius: 6px;
+                background-color: #fafafa;
+                text-align: justify;
+                margin-bottom: 20px;
+            }
+            .btn-group {
+                display: flex;
+                gap: 10px;
+                margin-bottom: 20px;
+            }
+            button {
+                padding: 10px 20px;
+                font-size: 16px;
+                color: white;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+                transition: background 0.2s;
+            }
+            .btn-search {
+                background-color: #007bff;
+            }
+            .btn-search:hover {
+                background-color: #0056b3;
+            }
+
+            .btn-stat {
+                background-color: #17a2b8;
+            }
+            .btn-stat:hover {
+                background-color: #138496;
+            }
+
+            .highlight {
+                background-color: #ffeb3b;
+                border-radius: 2px;
+            }
+            .result-panel {
+                padding: 15px;
+                background-color: #e2f0d9;
+                border: 1px solid #b5d5a7;
+                border-radius: 6px;
+                font-size: 18px;
+                font-weight: bold;
+                color: #2e5b1e;
+                display: none;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h2>Комплексна обробка тексту (Варіант 7)</h2>
+
+            <input
+                type="text"
+                id="searchInput"
+                class="search-box"
+                placeholder="Почніть вводити слово для динамічного виділення..."
+                onkeyup="searchAndHighlight()"
+            />
+
+            <div id="textBlock" class="text-block">
+                Яваскрипт — це динамічна мова програмування. Вона найчастіше
+                застосовується для створення різноманітної інтерактивності на
+                сучасних веб-сайтах. Завдяки цій чудовій мові ми можемо легко
+                реалізувати живий пошук, складну веб-анімацію або миттєву
+                обробку будь-яких подій клавіатури. Користувач просто вводить
+                текст. Скрипт працює ідеально!
+            </div>
+
+            <div class="btn-group">
+                <button class="btn-search" onclick="searchAndHighlight()">
+                    Оновити пошук
+                </button>
+                <button class="btn-stat" onclick="showStatistics()">
+                    Статистика
+                </button>
+            </div>
+
+            <div id="statResult" class="result-panel"></div>
+        </div>
+
+        <script>
+            // --- Подбаємо про підготовку тексту (Span-обгортка з минулого кроку) ---
+            window.onload = function () {
+                const textBlock = document.getElementById("textBlock");
+                const originalText = textBlock.innerHTML.trim();
+                const tokens = originalText.split(/(\s+)/);
+
+                const wrappedTokens = tokens.map((token) => {
+                    if (token.trim() === "") return token;
+                    return `<span>${token}</span>`;
+                });
+
+                textBlock.innerHTML = wrappedTokens.join("");
+            };
+
+            // --- Динамічний пошук (Фон-виділення з минулого кроку) ---
+            function searchAndHighlight() {
+                const query = document
+                    .getElementById("searchInput")
+                    .value.trim()
+                    .toLowerCase();
+                const spans = document.querySelectorAll("#textBlock span");
+
+                spans.forEach((span) => {
+                    const wordText = span.textContent.toLowerCase();
+                    if (query !== "" && wordText.includes(query)) {
+                        span.classList.add("highlight");
+                    } else {
+                        span.classList.remove("highlight");
+                    }
+                });
+            }
+
+            // --- НОВИЙ ФУНКЦІОНАЛ: СТАТИСТИКА (Варіант 7: Максимальна довжина речення) ---
+            function showStatistics() {
+                // Отримуємо чистий текст із блоку (без тегів span)
+                const textBlock = document.getElementById("textBlock");
+                const rawText = textBlock.textContent.trim();
+
+                if (rawText === "") {
+                    alert("Текст відсутній!");
+                    return;
+                }
+
+                // 1. Розбиваємо текст на масив речень за допомогою регулярного виразу.
+                // Вираз рахує роздільниками символи крапки, знаку оклику та знаку питання.
+                const sentences = rawText.split(/[.!?]+/);
+
+                let maxWordCount = 0;
+                let longestSentence = "";
+
+                // 2. Перебираємо отримані речення
+                sentences.forEach((sentence) => {
+                    let cleanSentence = sentence.trim();
+                    if (cleanSentence.length > 0) {
+                        // Розбиваємо поточне речення на слова за пробілами
+                        let words = cleanSentence.split(/\s+/);
+
+                        // Якщо кількість слів більша за поточний максимум — оновлюємо дані
+                        if (words.length > maxWordCount) {
+                            maxWordCount = words.length;
+                            longestSentence = cleanSentence;
+                        }
+                    }
+                });
+
+                // 3. Виводимо результат на екран у спеціальний блок
+                const statResultDiv = document.getElementById("statResult");
+                statResultDiv.innerHTML = `
+        📊 Статистичний параметр (Варіант 7):<br>
+        <span style="font-weight: normal; font-size: 16px; color: #555;">
+            Максимальна довжина речення: <strong>${maxWordCount} слів</strong>.<br>
+            <br><em>Найдовше речення:</em> "${longestSentence}."
+        </span>
+    `;
+                statResultDiv.style.display = "block";
+            }
+        </script>
+    </body>
+</html>

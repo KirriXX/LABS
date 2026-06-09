@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="uk">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Адаптивна сторінка - Завдання 7</title>
+
+        <style>
+            body {
+                margin: 20px;
+                font-family: sans-serif;
+                line-height: 1.5;
+            }
+
+            .container {
+                max-width: 1600px;
+                margin: 0 auto;
+            }
+
+            /* Зображення з обтіканням */
+            .content-img {
+                float: left;
+                margin: 15px;
+                width: 25vw; /* Максимальний розмір */
+                height: auto;
+                border: 2px solid #ccc;
+            }
+
+            /* Текст для великих екранів */
+            p {
+                color: green;
+                font-size: 2.5em; /* Максимальний розмір */
+            }
+
+            .clearfix::after {
+                content: "";
+                clear: both;
+                display: table;
+            }
+
+            @media only screen and (max-width: 1224px) {
+                p {
+                    color: blue;
+                    /* Зменшуємо 2.5em на третину (~1.65em) */
+                    font-size: 1.65em;
+                }
+                .content-img {
+                    /* Зменшуємо 25vw на третину (~16.6vw) */
+                    width: 16.6vw;
+                }
+            }
+
+            /* iPads (768px - 1024px) */
+            @media only screen and (min-width: 768px) and (max-width: 1024px) {
+                p {
+                    color: yellow;
+                    /* Зменшуємо 2.5em вдвічі */
+                    font-size: 1.25em;
+                }
+                .content-img {
+                    /* Зменшуємо 25vw вдвічі */
+                    width: 12.5vw;
+                }
+                /* Два останні зображення зникають */
+                .img-2,
+                .img-3 {
+                    display: none;
+                }
+            }
+
+            /*  Smartphones (до 480px) */
+            @media only screen and (max-width: 480px) {
+                p {
+                    color: red;
+                    font-size: 0.8em; /* Мінімально можливий */
+                }
+                /* Усі зображення зникають */
+                .content-img {
+                    display: none;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container clearfix">
+            <!-- Три зображення -->
+            <img src="duck.jpg" alt="Image 1" class="content-img img-1" />
+            <img src="duck2.jpg" alt="Image 2" class="content-img img-2" />
+            <img src="duck3.jpg" alt="Image 3" class="content-img img-3" />
+
+            <!-- 5 абзаців тексту -->
+            <p>
+                1. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut
+                enim ad minim veniam, quis nostrud exercitation ullamco laboris
+                nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor
+                in reprehenderit in voluptate velit esse cillum dolore eu fugiat
+                nulla pariatur.
+            </p>
+
+            <p>
+                2. Sed ut perspiciatis unde omnis iste natus error sit
+                voluptatem accusantium doloremque laudantium, totam rem aperiam,
+                eaque ipsa quae ab illo inventore veritatis et quasi architecto
+                beatae vitae dicta sunt explicabo.
+            </p>
+
+            <p>
+                3. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut
+                odit aut fugit, sed quia consequuntur magni dolores eos qui
+                ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui
+                dolorem ipsum quia dolor sit amet.
+            </p>
+
+            <p>
+                4. Quis autem vel eum iure reprehenderit qui in ea voluptate
+                velit esse quam nihil molestiae consequatur, vel illum qui
+                dolorem eum fugiat quo voluptas nulla pariatur? At vero eos et
+                accusamus et iusto odio dignissimos ducimus.
+            </p>
+
+            <p>
+                5. Et harum quidem rerum facilis est et expedita distinctio. Nam
+                libero tempore, cum soluta nobis est eligendi optio cumque nihil
+                impedit quo minus id quod maxime placeat facere possimus, omnis
+                voluptas assumenda est.
+            </p>
+        </div>
+    </body>
+</html>

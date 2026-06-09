@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width" />
+        <title>Block Transformation</title>
+        <style>
+            body {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100vh;
+                margin: 0;
+                font-family: Arial, sans-serif;
+            }
+
+            .container {
+                display: flex;
+                gap: 40px;
+            }
+
+            .box {
+                width: 150px;
+                height: 150px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                border: 2px solid #000;
+                transform: skewX(20deg);
+            }
+
+            .box span {
+                transform: skewX(-20deg);
+                font-weight: bold;
+                font-size: 1.2rem;
+            }
+
+            .box-1 {
+                background-color: #ff5733;
+                color: #ffffff;
+            }
+
+            .box-2 {
+                background-color: #33ff57;
+                color: #000000;
+            }
+
+            .box-3 {
+                background-color: #3357ff;
+                color: #ffffff;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="box box-1">
+                <span>блок1</span>
+            </div>
+            <div class="box box-2">
+                <span>Блок2</span>
+            </div>
+            <div class="box box-3">
+                <span>Блок3</span>
+            </div>
+        </div>
+    </body>
+</html>

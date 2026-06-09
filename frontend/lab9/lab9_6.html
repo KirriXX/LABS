@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="uk">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Циклічне Слайд-шоу (Варіант 7)</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                background-color: #f4f4f9;
+                margin: 0;
+                padding: 40px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+            h2 {
+                color: #333;
+            }
+            /* Вікно перегляду, що обрізає зайві картинки (показує рівно 3) */
+            .carousel-viewport {
+                width: 480px; /* 3 картинки * 150px + 2 міжрядкові проміжки по 15px */
+                overflow: hidden;
+                border: 4px solid #fff;
+                border-radius: 8px;
+                box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+                background: #fff;
+                padding: 10px;
+            }
+            /* Контейнер для картинок у лінію */
+            .carousel-track {
+                display: flex;
+                gap: 15px;
+            }
+            /* Стилізація окремого слайда */
+            .slide-item {
+                width: 150px;
+                height: 150px;
+                object-fit: cover;
+                border-radius: 4px;
+                box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2);
+            }
+            /* Кнопка Старт/Стоп */
+            .control-btn {
+                margin-top: 25px;
+                padding: 12px 30px;
+                font-size: 18px;
+                font-weight: bold;
+                color: white;
+                background-color: #28a745; /* Зелений колір для "Старт" */
+                border: none;
+                border-radius: 25px;
+                cursor: pointer;
+                box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+                transition: all 0.2s ease;
+            }
+            .control-btn.active {
+                background-color: #dc3545; /* Червоний колір для "Стоп" */
+            }
+            .control-btn:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 5px 10px rgba(0, 0, 0, 0.15);
+            }
+        </style>
+    </head>
+    <body>
+        <h2>Циклічне слайд-шоу (3 з 15, рух за стрілкою)</h2>
+
+        <div class="carousel-viewport">
+            <div id="carouselTrack" class="carousel-track"></div>
+        </div>
+
+        <button id="toggleBtn" class="control-btn" onclick="toggleSlideshow()">
+            Старт
+        </button>
+
+        <script>
+            // 1. Створюємо базовий масив із 15 посиланнями на зображення
+            const totalImages = 15;
+            let imagesArray = [];
+
+            for (let i = 1; i <= totalImages; i++) {
+                // Використовуємо унікальні зображення з номерами для наочності руху
+                imagesArray.push(`https://picsum.photos/150/150?random=${i}`);
+            }
+
+            // Змінні для збереження стану слайд-шоу
+            let slideshowIntervalId = null;
+            const track = document.getElementById("carouselTrack");
+            const toggleBtn = document.getElementById("toggleBtn");
+
+            // 2. Функція для відображення картинок у вікні (рендериться весь масив, viewport покаже перші 3)
+            function renderCarousel() {
+                track.innerHTML = "";
+                imagesArray.forEach((src) => {
+                    const img = document.createElement("img");
+                    img.src = src;
+                    img.className = "slide-item";
+                    track.appendChild(img);
+                });
+            }
+
+            // 3. Функція руху ЗА ГОДИННИКОВОЮ СТРІЛКОЮ
+            // Рух за стрілкою (вправо) означає, що картинки мають зміщуватися зліва направо.
+            // Для цього останній елемент масиву відрізається і вставляється на початок.
+            function moveClockwise() {
+                // Метод pop() видаляє останній елемент, а unshift() додає його на початок масиву
+                const lastElement = imagesArray.pop();
+                imagesArray.unshift(lastElement);
+
+                // Перемальовуємо карусель з новим порядком елементів
+                renderCarousel();
+            }
+
+            // 4. Головна функція перемикання Старт/Стоп
+            function toggleSlideshow() {
+                if (slideshowIntervalId === null) {
+                    // --- ЗАПУСК (СТАРТ) ---
+                    // setInterval викликає функцію переміщення кожні 1.5 секунди (1500 мс)
+                    slideshowIntervalId = setInterval(moveClockwise, 1500);
+
+                    // Зміна зовнішнього вигляду та напису кнопки
+                    toggleBtn.textContent = "Стоп";
+                    toggleBtn.classList.add("active");
+                } else {
+                    // --- ЗУПИНКА (СТОП) ---
+                    // Очищення інтервалу через clearInterval
+                    clearInterval(slideshowIntervalId);
+                    slideshowIntervalId = null;
+
+                    // Повернення кнопки до початкового стану
+                    toggleBtn.textContent = "Старт";
+                    toggleBtn.classList.remove("active");
+                }
+            }
+
+            // Первинне завантаження картинок при відкритті сторінки
+            renderCarousel();
+        </script>
+    </body>
+</html>

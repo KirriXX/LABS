@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="uk">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Flexbox Layout Variant</title>
+        <style>
+            body {
+                margin: 0;
+                padding: 50px;
+                height: 100vh;
+                display: flex;
+                justify-content: space-between;
+                box-sizing: border-box;
+                background-color: #fff;
+            }
+
+            .block {
+                border: 2px solid #000;
+                width: 50px;
+                background-color: #fff;
+            }
+
+            .s {
+                height: 60px;
+            }
+            .m {
+                height: 90px;
+            }
+            .t {
+                height: 130px;
+            }
+
+            .column-left {
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+                height: 100%;
+            }
+            .left-top {
+                display: flex;
+                align-items: flex-end;
+                gap: 10px;
+            }
+
+            .column-center {
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                gap: 15px;
+                transform: translateY(20px);
+            }
+            .center-row {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+
+            .column-right {
+                display: flex;
+                flex-direction: column;
+                justify-content: flex-end;
+                height: 100%;
+            }
+
+            .left-bottom-wrapper {
+                display: flex;
+                justify-content: center;
+                width: 100%;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="column-left">
+            <div class="left-top">
+                <div class="block s"></div>
+                <div class="block t"></div>
+                <div class="block s"></div>
+            </div>
+            <div class="left-bottom-wrapper">
+                <div class="block s"></div>
+            </div>
+        </div>
+
+        <div class="column-center">
+            <div class="center-row">
+                <div class="block s"></div>
+                <div class="block t"></div>
+                <div class="block m"></div>
+            </div>
+            <div class="block t"></div>
+        </div>
+
+        <div class="column-right">
+            <div class="block t"></div>
+        </div>
+    </body>
+</html>

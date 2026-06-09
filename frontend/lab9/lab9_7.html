@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="uk">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Стрибаючий параметр по кутах (Варіант 7)</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                margin: 0;
+                padding: 0;
+                background-color: #f4f4f9;
+                min-height: 100vh;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+
+            /* Стилі для чотирьох кутових блоків */
+            .corner-block {
+                width: 150px;
+                height: 150px;
+                background-color: #fff;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                font-weight: bold;
+                font-size: 16px;
+                color: #555;
+                border-radius: 8px;
+                /* Початковий нейтральний бордюр */
+                border: 4px solid #e0e0e0;
+                transition: border-color 0.2s ease;
+                position: fixed;
+                box-sizing: border-box;
+            }
+
+            /* Фіксоване розташування блоків по кутах екрана */
+            #block0 {
+                top: 20px;
+                left: 20px;
+            } /* Верхній лівий кут */
+            #block1 {
+                top: 20px;
+                right: 20px;
+            } /* Верхній правий кут */
+            #block2 {
+                bottom: 20px;
+                right: 20px;
+            } /* Нижній правий кут */
+            #block3 {
+                bottom: 20px;
+                left: 20px;
+            } /* Нижній лівий кут */
+
+            /* Активний стан (Варіант 7: яскравий колір бордюру) */
+            .corner-block.active {
+                border-color: #ff5722; /* Яскраво-помаранчевий бордюр */
+                color: #ff5722;
+            }
+
+            /* Стилізація кнопки керування по центру сторінки */
+            .control-btn {
+                padding: 15px 40px;
+                font-size: 18px;
+                font-weight: bold;
+                color: white;
+                background-color: #28a745; /* Зелений для "Старт" */
+                border: none;
+                border-radius: 30px;
+                cursor: pointer;
+                box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+                transition: all 0.2s ease;
+                z-index: 10; /* Кнопка завжди поверх інших елементів */
+            }
+            .control-btn.stop-state {
+                background-color: #dc3545; /* Червоний для "Стоп" */
+            }
+            .control-btn:hover {
+                transform: scale(1.05);
+                box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+            }
+        </style>
+    </head>
+    <body>
+        <div id="block0" class="corner-block">Блок 1</div>
+        <div id="block1" class="corner-block">Блок 2</div>
+        <div id="block2" class="corner-block">Блок 3</div>
+        <div id="block3" class="corner-block">Блок 4</div>
+
+        <button id="toggleBtn" class="control-btn" onclick="toggleJumping()">
+            Старт
+        </button>
+
+        <script>
+            // Індекс блоку, який зараз має підсвічений бордюр
+            let currentBlockIndex = 0;
+            // Змінна для збереження ідентифікатора таймера setInterval
+            let jumpingIntervalId = null;
+
+            const toggleBtn = document.getElementById("toggleBtn");
+
+            // Функція, яка переміщує активний бордюр до наступного блоку
+            function moveBorderClockwise() {
+                // 1. Спочатку прибираємо клас 'active' у поточного блока
+                document
+                    .getElementById(`block${currentBlockIndex}`)
+                    .classList.remove("active");
+
+                // 2. Вираховуємо індекс НАСТУПНОГО блоку за годинниковою стрілкою
+                // Порядок кутів за годинниковою: 0 (ВЛ) -> 1 (ВП) -> 2 (НП) -> 3 (НЛ) -> назад до 0
+                currentBlockIndex = (currentBlockIndex + 1) % 4;
+
+                // 3. Додаємо клас 'active' новому блоку, змінюючи колір його бордюру
+                document
+                    .getElementById(`block${currentBlockIndex}`)
+                    .classList.add("active");
+            }
+
+            // Функція кнопки Старт/Стоп за допомогою setInterval() та clearInterval()
+            function toggleJumping() {
+                if (jumpingIntervalId === null) {
+                    // --- ЗАПУСК (СТАРТ) ---
+                    // Підсвічуємо перший блок одразу при натисканні
+                    document
+                        .getElementById(`block${currentBlockIndex}`)
+                        .classList.add("active");
+
+                    // Встановлюємо інтервал 1.5 секунди (1500 мс) за варіантом
+                    jumpingIntervalId = setInterval(moveBorderClockwise, 1500);
+
+                    // Перемикаємо текст та дизайн кнопки
+                    toggleBtn.textContent = "Стоп";
+                    toggleBtn.classList.add("stop-state");
+                } else {
+                    // --- ЗУПИНКА (СТОП) ---
+                    // Скасовуємо виконання циклу за допомогою clearInterval
+                    clearInterval(jumpingIntervalId);
+                    jumpingIntervalId = null;
+
+                    // Прибираємо підсвічування з поточного активного блоку, щоб очистити стан
+                    document
+                        .getElementById(`block${currentBlockIndex}`)
+                        .classList.remove("active");
+
+                    // Повертаємо кнопку до початкового стану
+                    toggleBtn.textContent = "Старт";
+                    toggleBtn.classList.remove("stop-state");
+                }
+            }
+        </script>
+    </body>
+</html>

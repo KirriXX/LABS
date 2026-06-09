@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Document</title>
+        <style>
+        body {
+        justify-content: center;
+        align-items: center;
+        background-color: white;
+        font-family: sans-serif;
+        }
+.but1 {
+    background-color: #86f77e;
+    color:#f77e7e;
+    border-radius: 5px;
+    box-shadow: 4px 3px #c4c4c2;
+
+}
+.but2 {
+     background-color: #f77e7e;
+     color:#86f77e;
+     border-radius: 5px;
+     box-shadow: 4px 3px #c4c4c2;
+}
+
+.textarea {
+background-color: #f5ef7d;
+box-shadow: 4px 3px #c4c4c2;
+}
+label {
+    color:  #9027f2;
+    font-family: open sans;
+}
+input {
+    color: #9027f2;
+}
+textarea {
+    background-color: #f5ef7d;
+    color: #9027f2;
+    box-shadow: 4px 3px #c4c4c2;
+}
+legend {
+    color: #a2fa5f;
+}
+button {
+    font-family: open sans;
+}
+button.but1:hover {
+    background-color:#f77e7e;
+    color:#86f77e;
+    box-shadow: 4px 3px #40753c;
+}
+button.but2:hover {
+    background-color:#86f77e;
+    color:#f77e7e;
+    box-shadow: 4px 3px #5e0909;
+}
+textarea:focus{
+    color: #f5ef7d;
+    background-color:#9027f2;
+    box-shadow: 4px 3px #bb7df5;
+}
+input:focus{
+    color: #f5ef7d;
+    background-color:#9027f2;
+    box-shadow: 4px 3px #bb7df5;
+}
+        </style>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
+    </head>
+    <body>
+        <form name="forma1">
+            <label>Введіть пароль</label>
+            <input type="password" class="textarea" maxlenght="50" />
+            <br></br>
+            <table width="100%" height="100%">
+              <tr>
+                <td align="center" valign="middle">
+            <fieldset>
+                <legend><label>Розкажіть про себе</label></legend>
+                <label>
+                    Ваше імʼя:
+                    <input
+                        type="name"
+                        class="textarea"
+                        maxlenght="50"
+                    />
+                </label>
+                <br></br>
+                <label for="age">Ваш вік:</label>
+                <select name="age" id="age">
+                    <option value="18-24">18-24</option>
+                    <option value="25-34">25-34</option>
+                    <option value="35-44">35-44</option>
+                    <option value="45-54">45-54</option>
+                    <option value="55+">55+</option>
+                </select>
+                <br></br>
+                <label for="sex">Ваша стать:</label>
+                <input type="radio" name="sex" value="man">
+                <label for="sex">Чоловіча</label>
+                <input type="radio" name="sex" value="man">
+                <label for="sex">Жіноча</label>
+                <br></br>
+                <label for="intrst">Ваші інтереси:<br></label>
+                <input type="checkbox" name="intrst1" value="computers"></input>
+                <label for="intrst1">Компʼютери</label>
+                <input type="checkbox" name="intrst1" value="sport"></input>
+                <label for="intrst1">Спорт</label>
+                <input type="checkbox" name="intrst1" value="art"></input>
+                <label for="intrst1">Мистецтво</label>
+                <input type="checkbox" name="intrst1" value="science"></input>
+                <label for="intrst1">Наука</label>
+            </fieldset>
+            <fieldset>
+                <legend><label>Ваша думка</label></legend>
+                <label for="intrst">Введіть імʼя файла з описом вашої думки:<br></label>
+                <input type="name" class="textarea" maxlenght="50" />
+                <button type="submit" class="but1" value="Огляд..."><i class="fa-solid fa-magnifying-glass"></i>Огляд</button>
+                <br></br>
+                <label for="intrst">Або можете висловити свою думку прямо тут:<br></label>
+                <textarea cols="35" rows="5" wraps="virtual" class="textarea"></textarea>
+                <br></br>
+                <button type="submit" class="but1" value="Відпарвити"><i class="fa-solid fa-paper-plane"></i>Відправити</button>
+                <button type="reset" class="but2" value="Очистити форму"><i class="fa-solid fa-ban"></i>Очистити</button>
+                </fieldset>
+                </td>
+                 </tr>
+               </table>
+        </form>
+    </body>
+</html>

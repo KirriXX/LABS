@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="uk">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Адаптація та Сортування тексту (Варіант 7)</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                margin: 40px;
+                background-color: #f4f4f9;
+            }
+            .container {
+                max-width: 600px;
+                background: white;
+                padding: 20px;
+                border-radius: 8px;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            }
+            textarea {
+                width: 100%;
+                height: 150px;
+                padding: 10px;
+                box-sizing: border-box;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+                font-size: 16px;
+                resize: vertical;
+            }
+            .btn-group {
+                margin-top: 15px;
+                display: flex;
+                gap: 10px;
+            }
+            button {
+                padding: 10px 20px;
+                font-size: 16px;
+                color: white;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+                transition: background 0.2s;
+            }
+            .btn-adapt {
+                background-color: #007bff;
+            }
+            .btn-adapt:hover {
+                background-color: #0056b3;
+            }
+
+            .btn-sort {
+                background-color: #28a745;
+            }
+            .btn-sort:hover {
+                background-color: #218838;
+            }
+
+            .result-section {
+                margin-top: 20px;
+                padding-top: 15px;
+                border-top: 2px dashed #eee;
+            }
+            ol {
+                padding-left: 20px;
+                line-height: 1.6;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h2>Обробка тексту (Варіант 7)</h2>
+
+            <textarea
+                id="textInput"
+                placeholder="Введіть ваше речення сюди..."
+            ></textarea>
+
+            <div class="btn-group">
+                <button class="btn-adapt" onclick="adaptText()">
+                    Адаптувати
+                </button>
+                <button class="btn-sort" onclick="sortText()">Сортувати</button>
+            </div>
+
+            <div
+                class="result-section"
+                id="resultSection"
+                style="display: none"
+            >
+                <h3>Посортований список слів (за кількістю букв «я»):</h3>
+                <ol id="wordList"></ol>
+            </div>
+        </div>
+
+        <script>
+            // --- ФУНКЦІЯ АДАПТАЦІЇ (З минулого завдання) ---
+            function adaptText() {
+                const textarea = document.getElementById("textInput");
+                let originalText = textarea.value.trim();
+
+                if (originalText === "") {
+                    alert("Будь ласка, введіть текст!");
+                    return;
+                }
+
+                let words = originalText.split(/\s+/);
+                let adaptedWords = words.map((word) => {
+                    if (word.length === 0) return word;
+                    return word.slice(0, 1).toUpperCase() + word.slice(1);
+                });
+
+                textarea.value = adaptedWords.join(" ");
+            }
+
+            // --- ФУНКЦІЯ СОРТУВАННЯ (Варіант 7: за кількістю літер 'я' за зростанням) ---
+            function sortText() {
+                const textarea = document.getElementById("textInput");
+                let originalText = textarea.value.trim();
+
+                if (originalText === "") {
+                    alert("Текстова область порожня! Немає чого сортувати.");
+                    return;
+                }
+
+                // 1. Очищаємо текст від розділових знаків (крапки, коми тощо), щоб сортувати суто слова
+                // Використовуємо replace() з регулярним виразом
+                let cleanText = originalText.replace(
+                    /[.,\/#!$%\^&\*;:{}=\-_`~()?"']/g,
+                    "",
+                );
+
+                // 2. Розбиваємо текст на масив слів
+                let words = cleanText.split(/\s+/);
+
+                // Допоміжна функція для підрахунку літер 'я' або 'Я' у слові
+                function countLetterYa(word) {
+                    let count = 0;
+                    // Проходимо по кожному символу слова за допомогою циклу або методів рядка
+                    for (let i = 0; i < word.length; i++) {
+                        if (word[i].toLowerCase() === "я") {
+                            count++;
+                        }
+                    }
+                    return count;
+                }
+
+                // 3. Сортування масиву методom sort() за зростанням кількості букв "я"
+                words.sort((wordA, wordB) => {
+                    let countA = countLetterYa(wordA);
+                    let countB = countLetterYa(wordB);
+
+                    // Якщо кількість «я» різна — сортуємо за зростанням
+                    return countA - countB;
+                });
+
+                // 4. Замінюємо похідне речення у текстовій області на відсортоване
+                textarea.value = words.join(" ");
+
+                // 5. Виводимо результат у вигляді нумерованого списку <ol>
+                const resultSection = document.getElementById("resultSection");
+                const wordList = document.getElementById("wordList");
+
+                // Очищаємо старий список перед виведенням нового
+                wordList.innerHTML = "";
+
+                words.forEach((word) => {
+                    let count = countLetterYa(word);
+                    let li = document.createElement("li");
+                    // Додаємо інформацію про кількість знайдених літер для наочності
+                    li.textContent = `${word} (кількість літер «я»: ${count})`;
+                    wordList.appendChild(li);
+                });
+
+                // Показуємо блок зі списком
+                resultSection.style.display = "block";
+            }
+        </script>
+    </body>
+</html>

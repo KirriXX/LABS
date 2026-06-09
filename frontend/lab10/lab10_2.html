@@ -1,0 +1,375 @@
+<!doctype html>
+<html lang="uk">
+    <head>
+        <meta charset="UTF-8" />
+        <title>Лабораторна робота: Варіант 7</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                margin: 30px;
+                background-color: #f9f9f9;
+                color: #333;
+            }
+            h2 {
+                color: #2c3e50;
+            }
+            .controls {
+                background: #fff;
+                padding: 20px;
+                border-radius: 8px;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+                margin-bottom: 20px;
+            }
+            .control-group {
+                margin-bottom: 15px;
+            }
+            label {
+                font-weight: bold;
+                margin-right: 15px;
+            }
+            select {
+                padding: 5px 10px;
+                font-size: 14px;
+                border-radius: 4px;
+            }
+
+            /* Стилі для Табличного режиму */
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                background: #fff;
+                margin-top: 15px;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            }
+            th,
+            td {
+                border: 1px solid #ddd;
+                padding: 12px;
+                text-align: left;
+            }
+            th {
+                background-color: #34495e;
+                color: white;
+            }
+            tr:nth-child(even) {
+                background-color: #f2f2f2;
+            }
+
+            /* Стилі для режиму Формуляру */
+            .form-container {
+                background: #fff;
+                padding: 20px;
+                border-radius: 8px;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+                margin-top: 15px;
+            }
+            .card {
+                border: 1px solid #34495e;
+                border-radius: 6px;
+                padding: 15px;
+                margin-bottom: 15px;
+                background: #fdfdfd;
+            }
+            .card-title {
+                font-weight: bold;
+                color: #34495e;
+                border-bottom: 2px solid #34495e;
+                padding-bottom: 5px;
+                margin-bottom: 10px;
+            }
+            .form-row {
+                margin-bottom: 8px;
+                display: flex;
+            }
+            .form-label {
+                font-weight: bold;
+                width: 200px;
+                color: #555;
+            }
+            .form-value {
+                color: #000;
+            }
+        </style>
+    </head>
+    <body>
+        <h2>Управління організацією послуг (Варіант 7)</h2>
+
+        <div class="controls">
+            <div class="control-group">
+                <label for="tableSelect">Оберіть дані (таблицю):</label>
+                <select id="tableSelect" onchange="renderData()">
+                    <option value="services">Послуги (Довідник)</option>
+                    <option value="customers">Замовники (Довідник)</option>
+                    <option value="contracts">Договори (Зв'язувальна)</option>
+                </select>
+            </div>
+
+            <div class="control-group">
+                <label>Режим відображення:</label>
+                <input
+                    type="radio"
+                    id="modeTable"
+                    name="viewMode"
+                    value="table"
+                    checked
+                    onchange="renderData()"
+                />
+                <label
+                    for="modeTable"
+                    style="font-weight: normal; margin-right: 20px"
+                    >Режим таблиці</label
+                >
+
+                <input
+                    type="radio"
+                    id="modeForm"
+                    name="viewMode"
+                    value="form"
+                    onchange="renderData()"
+                />
+                <label for="modeForm" style="font-weight: normal"
+                    >Режим формуляру</label
+                >
+            </div>
+        </div>
+
+        <div id="outputContainer"></div>
+
+        <script>
+            // ==========================================
+            // ООП КЛАСИ З МЕТОДАМИ ДЛЯ ГЕНЕРАЦІЇ HTML
+            // ==========================================
+
+            class Service {
+                #code;
+                #name;
+                #cost;
+                constructor(code, name, cost) {
+                    this.#code = code;
+                    this.#name = name;
+                    this.#cost = cost;
+                }
+
+                get code() {
+                    return this.#code;
+                }
+                get name() {
+                    return this.#name;
+                }
+                get cost() {
+                    return this.#cost;
+                }
+
+                // Метод для створення рядка таблиці
+                toTableRow() {
+                    return `<tr><td>${this.#code}</td><td>${this.#name}</td><td>${this.#cost} грн</td></tr>`;
+                }
+                // Метод для створення картки формуляру
+                toFormRow(index) {
+                    return `
+                    <div class="card">
+                        <div class="card-title">Послуга №${index + 1}</div>
+                        <div class="form-row"><div class="form-label">Шифр послуги:</div><div class="form-value">${this.#code}</div></div>
+                        <div class="form-row"><div class="form-label">Найменування:</div><div class="form-value">${this.#name}</div></div>
+                        <div class="form-row"><div class="form-label">Вартість:</div><div class="form-value">${this.#cost} грн</div></div>
+                    </div>`;
+                }
+            }
+
+            class Customer {
+                #name;
+                #address;
+                #account;
+                constructor(name, address, account) {
+                    this.#name = name;
+                    this.#address = address;
+                    this.#account = account;
+                }
+
+                get name() {
+                    return this.#name;
+                }
+                get address() {
+                    return this.#address;
+                }
+                get account() {
+                    return this.#account;
+                }
+
+                toTableRow() {
+                    return `<tr><td>${this.#name}</td><td>${this.#address}</td><td>${this.#account}</td></tr>`;
+                }
+                toFormRow(index) {
+                    return `
+                    <div class="card">
+                        <div class="card-title">Замовник №${index + 1}</div>
+                        <div class="form-row"><div class="form-label">Назва підприємства:</div><div class="form-value">${this.#name}</div></div>
+                        <div class="form-row"><div class="form-label">Адреса:</div><div class="form-value">${this.#address}</div></div>
+                        <div class="form-row"><div class="form-label">Розрахунковий рахунок:</div><div class="form-value">${this.#account}</div></div>
+                    </div>`;
+                }
+            }
+
+            class Contract {
+                #serviceIndex;
+                #customerIndex;
+                #quantity;
+                #deadline;
+                #endDate;
+                constructor(srvIdx, custIdx, qty, deadline, endDate) {
+                    this.#serviceIndex = srvIdx;
+                    this.#customerIndex = custIdx;
+                    this.#quantity = qty;
+                    this.#deadline = deadline;
+                    this.#endDate = endDate;
+                }
+
+                // Рядок таблиці (перетворює індекси на назви з масивів-довідників)
+                toTableRow(services, customers) {
+                    const sName = services[this.#serviceIndex]
+                        ? services[this.#serviceIndex].name
+                        : "Невідомо";
+                    const cName = customers[this.#customerIndex]
+                        ? customers[this.#customerIndex].name
+                        : "Невідомо";
+                    return `<tr><td>${sName}</td><td>${cName}</td><td>${this.#quantity}</td><td>${this.#deadline}</td><td>${this.#endDate}</td></tr>`;
+                }
+
+                // Картка формуляру
+                toFormRow(index, services, customers) {
+                    const sName = services[this.#serviceIndex]
+                        ? services[this.#serviceIndex].name
+                        : "Невідомо";
+                    const cName = customers[this.#customerIndex]
+                        ? customers[this.#customerIndex].name
+                        : "Невідомо";
+                    return `
+                    <div class="card">
+                        <div class="card-title">Договір №${index + 1}</div>
+                        <div class="form-row"><div class="form-label">Послуга (за індексом ${this.#serviceIndex}):</div><div class="form-value"><b>${sName}</b></div></div>
+                        <div class="form-row"><div class="form-label">Замовник (за індексом ${this.#customerIndex}):</div><div class="form-value"><b>${cName}</b></div></div>
+                        <div class="form-row"><div class="form-label">Кількість послуг:</div><div class="form-value">${this.#quantity} шт.</div></div>
+                        <div class="form-row"><div class="form-label">Термін виконання:</div><div class="form-value">${this.#deadline}</div></div>
+                        <div class="form-row"><div class="form-label">Дата закінчення договору:</div><div class="form-value">${this.#endDate}</div></div>
+                    </div>`;
+                }
+            }
+
+            // ==========================================
+            // СТВОРЕННЯ МАСИВІВ ТА ЗАПОВНЕННЯ (По 20 елементів)
+            // ==========================================
+            const servicesArray = [];
+            const customersArray = [];
+            const contractsArray = [];
+
+            const serviceTypes = [
+                "Консалтинг",
+                "Аудит",
+                "IT-Супровід",
+                "Юридичний захист",
+                "Маркетинг",
+            ];
+            const companyNames = [
+                "ТОВ Альфа",
+                "ПП Вектор",
+                "АТ Світанок",
+                "ФОП Олійник",
+                "Корпорація Спейс",
+            ];
+
+            for (let i = 0; i < 20; i++) {
+                servicesArray.push(
+                    new Service(
+                        `ШИФР-${100 + i}`,
+                        `${serviceTypes[i % serviceTypes.length]} Рівень ${i + 1}`,
+                        1000 + i * 300,
+                    ),
+                );
+                customersArray.push(
+                    new Customer(
+                        `${companyNames[i % companyNames.length]} (Клієнт ${i + 1})`,
+                        `м. Київ, вул. Центральна, ${i + 1}`,
+                        `UA7730000000026000000${10 + i}`,
+                    ),
+                );
+            }
+
+            for (let i = 0; i < 20; i++) {
+                contractsArray.push(
+                    new Contract(
+                        i,
+                        (i + 4) % 20,
+                        1 + (i % 4),
+                        `01-06-2026`,
+                        `25-06-2026`,
+                    ),
+                );
+            }
+
+            // ==========================================
+            // ЛОГІКА ВІДОБРАЖЕННЯ НА СТОРІНЦІ
+            // ==========================================
+            function renderData() {
+                const selectedTable =
+                    document.getElementById("tableSelect").value;
+                const isTableMode =
+                    document.getElementById("modeTable").checked;
+                const container = document.getElementById("outputContainer");
+
+                let htmlHTML = "";
+
+                if (isTableMode) {
+                    // --- РЕЖИМ ТАБЛИЦІ ---
+                    if (selectedTable === "services") {
+                        htmlHTML = `<table><tr><th>Шифр послуги</th><th>Найменування</th><th>Вартість</th></tr>`;
+                        servicesArray.forEach(
+                            (item) => (htmlHTML += item.toTableRow()),
+                        );
+                    } else if (selectedTable === "customers") {
+                        htmlHTML = `<table><tr><th>Назва замовника</th><th>Адреса</th><th>Розрахунковий рахунок</th></tr>`;
+                        customersArray.forEach(
+                            (item) => (htmlHTML += item.toTableRow()),
+                        );
+                    } else if (selectedTable === "contracts") {
+                        htmlHTML = `<table><tr><th>Послуга</th><th>Замовник</th><th>Кількість</th><th>Термін виконання</th><th>Дата закінчення</th></tr>`;
+                        contractsArray.forEach(
+                            (item) =>
+                                (htmlHTML += item.toTableRow(
+                                    servicesArray,
+                                    customersArray,
+                                )),
+                        );
+                    }
+                    htmlHTML += `</table>`;
+                } else {
+                    // --- РЕЖИМ ФОРМУЛЯРУ (Властивості одна під одною) ---
+                    htmlHTML = `<div class="form-container">`;
+                    if (selectedTable === "services") {
+                        servicesArray.forEach(
+                            (item, idx) => (htmlHTML += item.toFormRow(idx)),
+                        );
+                    } else if (selectedTable === "customers") {
+                        customersArray.forEach(
+                            (item, idx) => (htmlHTML += item.toFormRow(idx)),
+                        );
+                    } else if (selectedTable === "contracts") {
+                        contractsArray.forEach(
+                            (item, idx) =>
+                                (htmlHTML += item.toFormRow(
+                                    idx,
+                                    servicesArray,
+                                    customersArray,
+                                )),
+                        );
+                    }
+                    htmlHTML += `</div>`;
+                }
+
+                container.innerHTML = htmlHTML;
+            }
+
+            // Запуск програми при першому відкритті сторінки
+            renderData();
+        </script>
+    </body>
+</html>

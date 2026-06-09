@@ -1,0 +1,348 @@
+<!doctype html>
+<html lang="uk">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Динамічна таблиця тварин (З блокуванням кнопок)</title>
+        <style>
+            body {
+                font-family: "Segoe UI", Arial, sans-serif;
+                background-color: #f4f6f9;
+                padding: 30px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                min-height: 100vh;
+                margin: 0;
+            }
+            .table-card {
+                background: white;
+                padding: 30px;
+                border-radius: 12px;
+                box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+                max-width: 900px;
+                width: 100%;
+                box-sizing: border-box;
+                margin-bottom: 20px;
+            }
+            h2 {
+                color: #2c3e50;
+                margin-top: 0;
+                border-bottom: 2px solid #3498db;
+                padding-bottom: 10px;
+                font-size: 22px;
+            }
+            .inputs-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                gap: 12px;
+                margin-bottom: 20px;
+            }
+            .form-group {
+                display: flex;
+                flex-direction: column;
+            }
+            label {
+                font-weight: 600;
+                margin-bottom: 6px;
+                color: #34495e;
+                font-size: 14px;
+            }
+            input[type="text"],
+            input[type="number"] {
+                width: 100%;
+                padding: 10px;
+                border: 1px solid #ccc;
+                border-radius: 6px;
+                box-sizing: border-box;
+                font-size: 14px;
+            }
+            input:focus {
+                border-color: #3498db;
+                outline: none;
+                box-shadow: 0 0 5px rgba(52, 152, 219, 0.3);
+            }
+            .btn-container {
+                display: flex;
+                gap: 15px;
+                margin-bottom: 25px;
+                justify-content: center;
+            }
+            .btn {
+                min-width: 150px;
+                font-size: 16px;
+                font-weight: bold;
+                padding: 12px;
+                border: none;
+                border-radius: 6px;
+                cursor: pointer;
+                transition: all 0.2s ease;
+                color: white;
+            }
+            .btn-add {
+                background-color: #2ecc71;
+            }
+            .btn-add:hover {
+                background-color: #27ae60;
+            }
+            .btn-remove {
+                background-color: #e74c3c;
+            }
+            .btn-remove:hover {
+                background-color: #c0392b;
+            }
+
+            /* Стиль для заблокованої кнопки */
+            .btn:disabled {
+                background-color: #bdc3c7 !important;
+                color: #7f8c8d !important;
+                cursor: not-allowed;
+                opacity: 0.6;
+                transform: none !important;
+            }
+
+            .table-container {
+                overflow-x: auto;
+                width: 100%;
+            }
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 10px;
+                text-align: left;
+            }
+            th,
+            td {
+                padding: 12px 15px;
+                border-bottom: 1px solid #e1e8ed;
+                font-size: 15px;
+            }
+            th {
+                background-color: #3498db;
+                color: white;
+                font-weight: 600;
+            }
+            tr:nth-child(even) {
+                background-color: #f8f9fa;
+            }
+            tr {
+                animation: fadeIn 0.3s ease;
+                cursor: pointer;
+                transition:
+                    background-color 0.15s,
+                    color 0.15s;
+            }
+
+            /* Клас для інверсії кольорів виділеного рядка */
+            tr.selected {
+                background-color: #2c3e50 !important;
+                color: #ffffff !important;
+            }
+            tr.selected td {
+                border-bottom-color: #34495e;
+            }
+
+            .empty-row {
+                text-align: center;
+                color: #7f8c8d;
+                font-style: italic;
+            }
+            @keyframes fadeIn {
+                from {
+                    opacity: 0;
+                    transform: translateY(-5px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="table-card">
+            <h2>Реєстр тваринного світу</h2>
+
+            <form id="animalForm" onsubmit="event.preventDefault()">
+                <div class="inputs-grid">
+                    <div class="form-group">
+                        <label for="nameInp">Назва тварини:</label>
+                        <input
+                            type="text"
+                            id="nameInp"
+                            placeholder="напр. Тигр"
+                        />
+                    </div>
+                    <div class="form-group">
+                        <label for="classInp">Клас:</label>
+                        <input
+                            type="text"
+                            id="classInp"
+                            placeholder="напр. Ссавці"
+                        />
+                    </div>
+                    <div class="form-group">
+                        <label for="habitatInp">Середовище існування:</label>
+                        <input
+                            type="text"
+                            id="habitatInp"
+                            placeholder="напр. Азіатські ліси"
+                        />
+                    </div>
+                    <div class="form-group">
+                        <label for="lifespanInp">Вік (років):</label>
+                        <input
+                            type="number"
+                            id="lifespanInp"
+                            min="1"
+                            placeholder="напр. 15"
+                        />
+                    </div>
+                    <div class="form-group">
+                        <label for="statusInp">Статус охорони:</label>
+                        <input
+                            type="text"
+                            id="statusInp"
+                            placeholder="напр. Вимираючий"
+                        />
+                    </div>
+                </div>
+
+                <div class="btn-container">
+                    <button type="button" id="addBtn" class="btn btn-add">
+                        Додати запис
+                    </button>
+                    <button
+                        type="button"
+                        id="removeBtn"
+                        class="btn btn-remove"
+                        disabled
+                    >
+                        Видалити рядок
+                    </button>
+                </div>
+            </form>
+
+            <div class="table-container">
+                <table id="animalsTable">
+                    <thead>
+                        <tr>
+                            <th>Назва тварини</th>
+                            <th>Клас</th>
+                            <th>Середовище існування</th>
+                            <th>Тривалість життя</th>
+                            <th>Статус охорони</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                        <tr id="emptyPlaceholder">
+                            <td colspan="5" class="empty-row">
+                                Таблиця порожня. Додайте першу тварину.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                const nameInp = document.getElementById("nameInp");
+                const classInp = document.getElementById("classInp");
+                const habitatInp = document.getElementById("habitatInp");
+                const lifespanInp = document.getElementById("lifespanInp");
+                const statusInp = document.getElementById("statusInp");
+
+                const addBtn = document.getElementById("addBtn");
+                const removeBtn = document.getElementById("removeBtn");
+                const tableBody = document.getElementById("tableBody");
+
+                let placeholder = document.getElementById("emptyPlaceholder");
+
+                // Функція, яка динамічно перевіряє наявність виділених рядків і керує кнопкою
+                function updateRemoveButtonState() {
+                    const selectedRows =
+                        tableBody.querySelectorAll("tr.selected");
+                    // Якщо є бодай один виділений рядок — розблокувати кнопку, інакше — заблокувати
+                    removeBtn.disabled = selectedRows.length === 0;
+                }
+
+                // 1. Скрипт для кнопки "Додати"
+                addBtn.addEventListener("click", function () {
+                    const name = nameInp.value.trim();
+                    const animalClass = classInp.value.trim();
+                    const habitat = habitatInp.value.trim();
+                    const lifespan = lifespanInp.value.trim();
+                    const status = statusInp.value.trim();
+
+                    if (
+                        name !== "" &&
+                        animalClass !== "" &&
+                        habitat !== "" &&
+                        lifespan !== "" &&
+                        status !== ""
+                    ) {
+                        if (document.getElementById("emptyPlaceholder")) {
+                            placeholder.remove();
+                        }
+
+                        const newRow = document.createElement("tr");
+                        const rowData = [
+                            name,
+                            animalClass,
+                            habitat,
+                            lifespan + " років",
+                            status,
+                        ];
+
+                        for (let i = 0; i < rowData.length; i++) {
+                            const newCell = document.createElement("td");
+                            newCell.textContent = rowData[i];
+                            newRow.appendChild(newCell);
+                        }
+
+                        // Подія кліку на рядок
+                        newRow.addEventListener("click", function () {
+                            this.classList.toggle("selected");
+                            updateRemoveButtonState(); // Перевіряємо статус кнопки при кожному кліку
+                        });
+
+                        tableBody.appendChild(newRow);
+
+                        // Очищення полів
+                        nameInp.value = "";
+                        classInp.value = "";
+                        habitatInp.value = "";
+                        lifespanInp.value = "";
+                        statusInp.value = "";
+                        nameInp.focus();
+
+                        updateRemoveButtonState(); // Про всяк випадок оновлюємо стан
+                    } else {
+                        alert(
+                            "Помилка: Заповніть усі 5 полів введення параметрів тварини!",
+                        );
+                    }
+                });
+
+                // 2. Скрипт для кнопки "Видалити"
+                removeBtn.addEventListener("click", function () {
+                    const selectedRows =
+                        tableBody.querySelectorAll("tr.selected");
+
+                    selectedRows.forEach(function (row) {
+                        tableBody.removeChild(row);
+                    });
+
+                    // Якщо після видалення нічого не залишилось, повертаємо плашку порожньої таблиці
+                    if (tableBody.children.length === 0) {
+                        tableBody.appendChild(placeholder);
+                    }
+
+                    // Оскільки всі виділені рядки щойно видалили, блокуємо кнопку назад
+                    updateRemoveButtonState();
+                });
+            });
+        </script>
+    </body>
+</html>

@@ -1,0 +1,525 @@
+<!doctype html>
+<html lang="uk">
+    <head>
+        <meta charset="UTF-8" />
+        <title>Лабораторна робота: Редагування даних (Варіант 7)</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                margin: 30px;
+                background-color: #f9f9f9;
+                color: #333;
+            }
+            h2 {
+                color: #2c3e50;
+            }
+            .controls,
+            .form-container {
+                background: #fff;
+                padding: 20px;
+                border-radius: 8px;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+                margin-bottom: 20px;
+            }
+            label {
+                font-weight: bold;
+                margin-right: 15px;
+                display: inline-block;
+                margin-bottom: 5px;
+            }
+            select,
+            input {
+                padding: 6px 12px;
+                font-size: 14px;
+                border-radius: 4px;
+                border: 1px solid #ccc;
+                margin-bottom: 10px;
+                width: 100%;
+                box-sizing: border-box;
+            }
+            .main-select {
+                width: auto;
+            }
+
+            /* Таблиця */
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                background: #fff;
+                margin-top: 15px;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            }
+            th,
+            td {
+                border: 1px solid #ddd;
+                padding: 10px;
+                text-align: left;
+            }
+            th {
+                background-color: #34495e;
+                color: white;
+            }
+            tr:nth-child(even) {
+                background-color: #f2f2f2;
+            }
+
+            /* Кнопки */
+            button {
+                padding: 6px 12px;
+                font-size: 13px;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+                font-weight: bold;
+                margin-right: 5px;
+            }
+            .btn-add {
+                background-color: #2ecc71;
+                color: white;
+                width: auto;
+                padding: 10px 20px;
+            }
+            .btn-add:hover {
+                background-color: #27ae60;
+            }
+            .btn-edit {
+                background-color: #f1c40f;
+                color: #333;
+            }
+            .btn-edit:hover {
+                background-color: #d4ac0d;
+            }
+            .btn-delete {
+                background-color: #e74c3c;
+                color: white;
+            }
+            .btn-delete:hover {
+                background-color: #c0392b;
+            }
+            .btn-cancel {
+                background-color: #95a5a6;
+                color: white;
+            }
+
+            .form-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 15px;
+                margin-bottom: 15px;
+            }
+        </style>
+    </head>
+    <body>
+        <h2>Керування даними предметної області (Варіант 7)</h2>
+
+        <div class="controls">
+            <label for="tableSelect">Оберіть таблицю для редагування:</label>
+            <select
+                id="tableSelect"
+                class="main-select"
+                onchange="onTableChange()"
+            >
+                <option value="services">Послуги (Довідник)</option>
+                <option value="customers">Замовники (Довідник)</option>
+                <option value="contracts">Договори (Зв'язувальна)</option>
+            </select>
+        </div>
+
+        <div
+            id="tableContainer"
+            style="overflow-x: auto; margin-bottom: 30px"
+        ></div>
+
+        <div class="form-container">
+            <h3 id="formTitle">Додати нову послугу</h3>
+            <form id="crudForm" onsubmit="handleFormSubmit(event)">
+                <div id="formFields" class="form-grid"></div>
+                <button type="submit" id="submitBtn" class="btn-add">
+                    Додати
+                </button>
+                <button
+                    type="button"
+                    id="cancelBtn"
+                    class="btn-cancel"
+                    style="display: none"
+                    onclick="resetForm()"
+                >
+                    Скасувати
+                </button>
+            </form>
+        </div>
+
+        <script>
+            // ==========================================
+            // КЛАСИ З ІНКАПСУЛЯЦІЄЮ ТА СЕТЕРАМИ
+            // ==========================================
+            class Service {
+                #code;
+                #name;
+                #cost;
+                constructor(code, name, cost) {
+                    this.#code = code;
+                    this.#name = name;
+                    this.#cost = cost;
+                }
+                get code() {
+                    return this.#code;
+                }
+                set code(v) {
+                    this.#code = v;
+                }
+                get name() {
+                    return this.#name;
+                }
+                set name(v) {
+                    this.#name = v;
+                }
+                get cost() {
+                    return this.#cost;
+                }
+                set cost(v) {
+                    this.#cost = Number(v);
+                }
+            }
+
+            class Customer {
+                #name;
+                #address;
+                #account;
+                constructor(name, address, account) {
+                    this.#name = name;
+                    this.#address = address;
+                    this.#account = account;
+                }
+                get name() {
+                    return this.#name;
+                }
+                set name(v) {
+                    this.#name = v;
+                }
+                get address() {
+                    return this.#address;
+                }
+                set address(v) {
+                    this.#address = v;
+                }
+                get account() {
+                    return this.#account;
+                }
+                set account(v) {
+                    this.#account = v;
+                }
+            }
+
+            class Contract {
+                #serviceIndex;
+                #customerIndex;
+                #quantity;
+                #deadline;
+                constructor(srvIdx, custIdx, qty, deadline) {
+                    this.#serviceIndex = Number(srvIdx);
+                    this.#customerIndex = Number(custIdx);
+                    this.#quantity = Number(qty);
+                    this.#deadline = deadline;
+                }
+                get serviceIndex() {
+                    return this.#serviceIndex;
+                }
+                set serviceIndex(v) {
+                    this.#serviceIndex = Number(v);
+                }
+                get customerIndex() {
+                    return this.#customerIndex;
+                }
+                set customerIndex(v) {
+                    this.#customerIndex = Number(v);
+                }
+                get quantity() {
+                    return this.#quantity;
+                }
+                set quantity(v) {
+                    this.#quantity = Number(v);
+                }
+                get deadline() {
+                    return this.#deadline;
+                }
+                set deadline(v) {
+                    this.#deadline = v;
+                }
+            }
+
+            // ==========================================
+            // ПОЧАТКОВІ ДАНІ (По 20 елементів)
+            // ==========================================
+            let servicesArray = [];
+            let customersArray = [];
+            let contractsArray = [];
+
+            const serviceTypes = [
+                "Консалтинг",
+                "Аудит",
+                "IT-Супровід",
+                "Маркетинг",
+            ];
+            const companyNames = [
+                "ТОВ Альфа",
+                "ПП Вектор",
+                "АТ Світанок",
+                "ФОП Олійник",
+            ];
+
+            for (let i = 0; i < 20; i++) {
+                servicesArray.push(
+                    new Service(
+                        `SRV-${101 + i}`,
+                        serviceTypes[i % serviceTypes.length] +
+                            ` Пакет ${i + 1}`,
+                        1000 + i * 200,
+                    ),
+                );
+                customersArray.push(
+                    new Customer(
+                        companyNames[i % companyNames.length] +
+                            ` Набір ${i + 1}`,
+                        `м. Київ, вул. Нова, ${i + 1}`,
+                        `UA773000${100 + i}`,
+                    ),
+                );
+            }
+            // Формат дат змінено на стандартний комп'ютерний YYYY-MM-DD
+            for (let i = 0; i < 20; i++) {
+                contractsArray.push(
+                    new Contract(i % 5, (i + 3) % 5, 2 + (i % 3), `2026-06-12`),
+                );
+            }
+
+            // Стан редагування (якщо null - додаємо, якщо число - редагуємо цей індекс)
+            let editIndex = null;
+
+            // ==========================================
+            // ЛОГІКА СТОРІНКИ
+            // ==========================================
+            function renderAll() {
+                const currentTable =
+                    document.getElementById("tableSelect").value;
+                renderTable(currentTable);
+                renderFormFields(currentTable);
+            }
+
+            function onTableChange() {
+                resetForm();
+                renderAll();
+            }
+
+            function renderTable(target) {
+                const container = document.getElementById("tableContainer");
+                let html = "<table>";
+
+                if (target === "services") {
+                    html += `<tr><th>Шифр</th><th>Найменування</th><th>Вартість</th><th>Дії</th></tr>`;
+                    servicesArray.forEach((item, idx) => {
+                        html += `<tr>
+                        <td>${item.code}</td><td>${item.name}</td><td>${item.cost} грн</td>
+                        <td>
+                            <button class="btn-edit" onclick="startEdit(${idx})">Редагувати</button>
+                            <button class="btn-delete" onclick="deleteItem(${idx})">Видалити</button>
+                        </td>
+                    </tr>`;
+                    });
+                } else if (target === "customers") {
+                    html += `<tr><th>Назва</th><th>Адреса</th><th>Рахунок</th><th>Дії</th></tr>`;
+                    customersArray.forEach((item, idx) => {
+                        html += `<tr>
+                        <td>${item.name}</td><td>${item.address}</td><td>${item.account}</td>
+                        <td>
+                            <button class="btn-edit" onclick="startEdit(${idx})">Редагувати</button>
+                            <button class="btn-delete" onclick="deleteItem(${idx})">Видалити</button>
+                        </td>
+                    </tr>`;
+                    });
+                } else if (target === "contracts") {
+                    html += `<tr><th>Послуга</th><th>Замовник</th><th>Кількість</th><th>Термін</th><th>Дії</th></tr>`;
+                    contractsArray.forEach((item, idx) => {
+                        const sName = servicesArray[item.serviceIndex]
+                            ? servicesArray[item.serviceIndex].name
+                            : "Невідома послуга";
+                        const cName = customersArray[item.customerIndex]
+                            ? customersArray[item.customerIndex].name
+                            : "Невідомий замовник";
+                        html += `<tr>
+                        <td>${sName}</td><td>${cName}</td><td>${item.quantity} шт.</td><td>${item.deadline}</td>
+                        <td>
+                            <button class="btn-edit" onclick="startEdit(${idx})">Редагувати</button>
+                            <button class="btn-delete" onclick="deleteItem(${idx})">Видалити</button>
+                        </td>
+                    </tr>`;
+                    });
+                }
+                html += "</table>";
+                container.innerHTML = html;
+            }
+
+            function renderFormFields(target) {
+                const fieldsContainer = document.getElementById("formFields");
+                let html = "";
+
+                if (target === "services") {
+                    html = `
+                    <div><label>Шифр послуги:</label><input type="text" id="field1" required></div>
+                    <div><label>Найменування:</label><input type="text" id="field2" required></div>
+                    <div><label>Вартість (грн):</label><input type="number" id="field3" min="0" required></div>`;
+                } else if (target === "customers") {
+                    html = `
+                    <div><label>Назва замовника:</label><input type="text" id="field1" required></div>
+                    <div><label>Адреса:</label><input type="text" id="field2" required></div>
+                    <div><label>Рахунок:</label><input type="text" id="field3" required></div>`;
+                } else if (target === "contracts") {
+                    const sOptions = servicesArray
+                        .map(
+                            (s, idx) =>
+                                `<option value="${idx}">${s.name}</option>`,
+                        )
+                        .join("");
+                    const cOptions = customersArray
+                        .map(
+                            (c, idx) =>
+                                `<option value="${idx}">${c.name}</option>`,
+                        )
+                        .join("");
+                    html = `
+                    <div><label>Оберіть послугу:</label><select id="field1">${sOptions}</select></div>
+                    <div><label>Оберіть замовника:</label><select id="field2">${cOptions}</select></div>
+                    <div><label>Кількість:</label><input type="number" id="field3" min="1" required></div>
+                    <div><label>Термін виконання:</label><input type="date" id="field4" required></div>`;
+                }
+                fieldsContainer.innerHTML = html;
+            }
+
+            // ==========================================
+            // КЛЮЧОВІ ОПЕРАЦІЇ (CRUD)
+            // ==========================================
+            function handleFormSubmit(event) {
+                event.preventDefault(); // Зупиняємо перезавантаження сторінки
+                const currentTable =
+                    document.getElementById("tableSelect").value;
+
+                const v1 = document.getElementById("field1").value;
+                const v2 = document.getElementById("field2").value;
+                const v3 = document.getElementById("field3").value;
+                const v4 = document.getElementById("field4")
+                    ? document.getElementById("field4").value
+                    : null;
+
+                if (editIndex === null) {
+                    // ДІЯ: ДОДАВАННЯ
+                    if (currentTable === "services")
+                        servicesArray.push(new Service(v1, v2, v3));
+                    if (currentTable === "customers")
+                        customersArray.push(new Customer(v1, v2, v3));
+                    if (currentTable === "contracts")
+                        contractsArray.push(new Contract(v1, v2, v3, v4));
+                } else {
+                    // ДІЯ: ЗБЕРЕЖЕННЯ ЗМІН (РЕДАГУВАННЯ)
+                    if (currentTable === "services") {
+                        servicesArray[editIndex].code = v1;
+                        servicesArray[editIndex].name = v2;
+                        servicesArray[editIndex].cost = v3;
+                    } else if (currentTable === "customers") {
+                        customersArray[editIndex].name = v1;
+                        customersArray[editIndex].address = v2;
+                        customersArray[editIndex].account = v3;
+                    } else if (currentTable === "contracts") {
+                        contractsArray[editIndex].serviceIndex = v1;
+                        contractsArray[editIndex].customerIndex = v2;
+                        contractsArray[editIndex].quantity = v3;
+                        contractsArray[editIndex].deadline = v4;
+                    }
+                }
+
+                resetForm();
+                renderAll(); // Повне оновлення інтерфейсу
+            }
+
+            function startEdit(index) {
+                const currentTable =
+                    document.getElementById("tableSelect").value;
+                editIndex = index; // Запам'ятовуємо, який рядок міняємо
+
+                document.getElementById("formTitle").innerText =
+                    `Редагувати рядок №${index + 1}`;
+                document.getElementById("submitBtn").innerText =
+                    "Зберегти зміни";
+                document.getElementById("submitBtn").className = "btn-edit";
+                document.getElementById("cancelBtn").style.display =
+                    "inline-block";
+
+                // Переносимо дані з масиву у форму для редагування
+                if (currentTable === "services") {
+                    document.getElementById("field1").value =
+                        servicesArray[index].code;
+                    document.getElementById("field2").value =
+                        servicesArray[index].name;
+                    document.getElementById("field3").value =
+                        servicesArray[index].cost;
+                } else if (currentTable === "customers") {
+                    document.getElementById("field1").value =
+                        customersArray[index].name;
+                    document.getElementById("field2").value =
+                        customersArray[index].address;
+                    document.getElementById("field3").value =
+                        customersArray[index].account;
+                } else if (currentTable === "contracts") {
+                    document.getElementById("field1").value =
+                        contractsArray[index].serviceIndex;
+                    document.getElementById("field2").value =
+                        contractsArray[index].customerIndex;
+                    document.getElementById("field3").value =
+                        contractsArray[index].quantity;
+                    document.getElementById("field4").value =
+                        contractsArray[index].deadline;
+                }
+
+                // Скролимо сторінку вниз до форми, щоб користувач бачив її
+                document
+                    .getElementById("crudForm")
+                    .scrollIntoView({ behavior: "smooth" });
+            }
+
+            function deleteItem(index) {
+                if (confirm("Ви дійсно хочете видалити цей рядок?")) {
+                    const currentTable =
+                        document.getElementById("tableSelect").value;
+                    if (currentTable === "services")
+                        servicesArray.splice(index, 1);
+                    if (currentTable === "customers")
+                        customersArray.splice(index, 1);
+                    if (currentTable === "contracts")
+                        contractsArray.splice(index, 1);
+                    resetForm();
+                    renderAll();
+                }
+            }
+
+            function resetForm() {
+                editIndex = null;
+                const currentTable =
+                    document.getElementById("tableSelect").value;
+                const names = {
+                    services: "послугу",
+                    customers: "замовника",
+                    contracts: "договір",
+                };
+
+                document.getElementById("formTitle").innerText =
+                    `Додати нову ${names[currentTable]}`;
+                document.getElementById("submitBtn").innerText = "Додати";
+                document.getElementById("submitBtn").className = "btn-add";
+                document.getElementById("cancelBtn").style.display = "none";
+                document.getElementById("crudForm").reset();
+            }
+
+            // Старт програми
+            renderAll();
+        </script>
+    </body>
+</html>

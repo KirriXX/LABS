@@ -1,0 +1,413 @@
+<!doctype html>
+<html lang="uk">
+    <head>
+        <meta charset="UTF-8" />
+        <title>Лабораторна робота: Фільтрація даних (Варіант 7)</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                margin: 30px;
+                background-color: #f9f9f9;
+                color: #333;
+            }
+            h2 {
+                color: #2c3e50;
+            }
+            .controls {
+                background: #fff;
+                padding: 20px;
+                border-radius: 8px;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+                margin-bottom: 20px;
+            }
+            label {
+                font-weight: bold;
+                margin-right: 15px;
+            }
+            .main-select {
+                padding: 6px 12px;
+                font-size: 14px;
+                border-radius: 4px;
+                border: 1px solid #ccc;
+            }
+
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                background: #fff;
+                margin-top: 15px;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            }
+            th,
+            td {
+                border: 1px solid #ddd;
+                padding: 10px;
+                text-align: left;
+            }
+            th {
+                background-color: #34495e;
+                color: white;
+            }
+
+            /* Стилі для рядка фільтрів */
+            .filter-row {
+                background-color: #eaeded;
+            }
+            .filter-input {
+                width: 90%;
+                padding: 5px;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+                font-size: 13px;
+            }
+            .filter-select {
+                width: 95%;
+                padding: 5px;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+                font-size: 13px;
+            }
+
+            tr:nth-child(even):not(.filter-row) {
+                background-color: #f2f2f2;
+            }
+            .no-results {
+                text-align: center;
+                color: #999;
+                font-style: italic;
+                padding: 20px;
+            }
+        </style>
+    </head>
+    <body>
+        <h2>Динамічна фільтрація даних (Варіант 7)</h2>
+
+        <div class="controls">
+            <label for="tableSelect">Оберіть таблицю:</label>
+            <select
+                id="tableSelect"
+                class="main-select"
+                onchange="resetFiltersAndRender()"
+            >
+                <option value="services">Послуги (Довідник)</option>
+                <option value="customers">Замовники (Довідник)</option>
+                <option value="contracts">Договори (Зв'язувальна)</option>
+            </select>
+        </div>
+
+        <div id="tableContainer"></div>
+
+        <script>
+            // ==========================================
+            // КЛАСИ (ІНКАПСУЛЯЦІЯ ЗБЕРЕЖЕНА)
+            // ==========================================
+            class Service {
+                #code;
+                #name;
+                #cost;
+                constructor(code, name, cost) {
+                    this.#code = code;
+                    this.#name = name;
+                    this.#cost = cost;
+                }
+                get code() {
+                    return this.#code;
+                }
+                get name() {
+                    return this.#name;
+                }
+                get cost() {
+                    return this.#cost;
+                }
+            }
+
+            class Customer {
+                #name;
+                #address;
+                #account;
+                constructor(name, address, account) {
+                    this.#name = name;
+                    this.#address = address;
+                    this.#account = account;
+                }
+                get name() {
+                    return this.#name;
+                }
+                get address() {
+                    return this.#address;
+                }
+                get account() {
+                    return this.#account;
+                }
+            }
+
+            class Contract {
+                #serviceIndex;
+                #customerIndex;
+                #quantity;
+                #deadline;
+                #endDate;
+                constructor(srvIdx, custIdx, qty, deadline, endDate) {
+                    this.#serviceIndex = srvIdx;
+                    this.#customerIndex = custIdx;
+                    this.#quantity = qty;
+                    this.#deadline = deadline;
+                    this.#endDate = endDate;
+                }
+                get serviceIndex() {
+                    return this.#serviceIndex;
+                }
+                get customerIndex() {
+                    return this.#customerIndex;
+                }
+                get quantity() {
+                    return this.#quantity;
+                }
+                get deadline() {
+                    return this.#deadline;
+                }
+                get endDate() {
+                    return this.#endDate;
+                }
+            }
+
+            // ==========================================
+            // ГЕНЕРАЦІЯ БАЗОВИХ ДАНИХ (20 елементів)
+            // ==========================================
+            const servicesArray = [];
+            const customersArray = [];
+            const contractsArray = [];
+
+            // Категорії, які будуть повторюватись (згідно з умовою)
+            const serviceTypes = [
+                "Консалтинг",
+                "Аудит",
+                "IT-Супровід",
+                "Маркетинг",
+            ];
+            const companyNames = [
+                "ТОВ Альфа",
+                "ПП Вектор",
+                "АТ Світанок",
+                "ФОП Олійник",
+            ];
+
+            for (let i = 0; i < 20; i++) {
+                servicesArray.push(
+                    new Service(
+                        `SRV-${101 + i}`,
+                        serviceTypes[i % serviceTypes.length],
+                        1000 + (i % 5) * 500,
+                    ),
+                );
+                customersArray.push(
+                    new Customer(
+                        companyNames[i % companyNames.length],
+                        `м. Київ, вул. Нова, ${i + 1}`,
+                        `UA773000${100 + i}`,
+                    ),
+                );
+            }
+
+            for (let i = 0; i < 20; i++) {
+                contractsArray.push(
+                    new Contract(
+                        i % 4,
+                        (i + 2) % 4,
+                        1 + (i % 3),
+                        `1${i % 9}-06-2026`,
+                        `25-06-2026`,
+                    ),
+                );
+            }
+
+            // ==========================================
+            // ОБ'ЄКТ ДЛЯ ЗБЕРЕЖЕННЯ ПОТОЧНИХ ЗНАЧЕНЬ ФІЛЬТРІВ
+            // ==========================================
+            let filters = { col0: "", col1: "", col2: "", col3: "" };
+
+            function resetFiltersAndRender() {
+                filters = { col0: "", col1: "", col2: "", col3: "" };
+                render();
+            }
+
+            // Функція, яка викликається при введенні тексту або зміні списку
+            function updateFilter(columnId, value) {
+                filters[columnId] = value;
+                render(); // Перемальовуємо з новими фільтрами
+            }
+
+            // Helper для генерації опцій випадаючого списку (унікальні значення)
+            function getUniqueOptions(array, extractor) {
+                const unique = [...new Set(array.map(extractor))].filter(
+                    Boolean,
+                );
+                return unique
+                    .map((val) => `<option value="${val}">${val}</option>`)
+                    .join("");
+            }
+
+            // ==========================================
+            // ГОЛОВНА ФУНКЦІЯ ВІДОБРАЖЕННЯ ТА ФІЛЬТРАЦІЇ
+            // ==========================================
+            function render() {
+                const selectedTable =
+                    document.getElementById("tableSelect").value;
+                const container = document.getElementById("tableContainer");
+
+                let tableHtml = "<table>";
+
+                if (selectedTable === "services") {
+                    // 1. Фільтрація масиву Послуг за поточними критеріями
+                    const filteredServices = servicesArray.filter((item) => {
+                        return (
+                            item.code
+                                .toLowerCase()
+                                .includes(filters.col0.toLowerCase()) &&
+                            (filters.col1 === "" ||
+                                item.name === filters.col1) &&
+                            item.cost.toString().includes(filters.col2)
+                        );
+                    });
+
+                    // Шапка таблиці та Рядок фільтрів (Шифр - Input, Назва - Select, Вартість - Input)
+                    tableHtml += `
+                    <tr><th>Шифр послуги</th><th>Найменування (повтор.)</th><th>Вартість</th></tr>
+                    <tr class="filter-row">
+                        <td><input type="text" class="filter-input" value="${filters.col0}" oninput="updateFilter('col0', this.value)" placeholder="Пошук..."></td>
+                        <td>
+                            <select class="filter-select" onchange="updateFilter('col1', this.value)">
+                                <option value="">Усі</option>
+                                ${getUniqueOptions(filteredServices, (s) => s.name)}
+                            </select>
+                        </td>
+                        <td><input type="text" class="filter-input" value="${filters.col2}" oninput="updateFilter('col2', this.value)" placeholder="Пошук..."></td>
+                    </tr>`;
+
+                    // Рендеринг залишку рядків
+                    if (filteredServices.length === 0) {
+                        tableHtml += `<tr><td colspan="3" class="no-results">Нічого не знайдено</td></tr>`;
+                    } else {
+                        filteredServices.forEach((item) => {
+                            tableHtml += `<tr><td>${item.code}</td><td>${item.name}</td><td>${item.cost} грн</td></tr>`;
+                        });
+                    }
+                } else if (selectedTable === "customers") {
+                    // 2. Фільтрація масиву Замовників
+                    const filteredCustomers = customersArray.filter((item) => {
+                        return (
+                            (filters.col0 === "" ||
+                                item.name === filters.col0) &&
+                            item.address
+                                .toLowerCase()
+                                .includes(filters.col1.toLowerCase()) &&
+                            item.account.includes(filters.col2)
+                        );
+                    });
+
+                    // Шапка та Рядок фільтрів (Назва - Select, Адреса - Input, Рахунок - Input)
+                    tableHtml += `
+                    <tr><th>Назва замовника (повтор.)</th><th>Адреса</th><th>Розрахунковий рахунок</th></tr>
+                    <tr class="filter-row">
+                        <td>
+                            <select class="filter-select" onchange="updateFilter('col0', this.value)">
+                                <option value="">Усі</option>
+                                ${getUniqueOptions(filteredCustomers, (c) => c.name)}
+                            </select>
+                        </td>
+                        <td><input type="text" class="filter-input" value="${filters.col1}" oninput="updateFilter('col1', this.value)" placeholder="Пошук..."></td>
+                        <td><input type="text" class="filter-input" value="${filters.col2}" oninput="updateFilter('col2', this.value)" placeholder="Пошук..."></td>
+                    </tr>`;
+
+                    if (filteredCustomers.length === 0) {
+                        tableHtml += `<tr><td colspan="3" class="no-results">Нічого не знайдено</td></tr>`;
+                    } else {
+                        filteredCustomers.forEach((item) => {
+                            tableHtml += `<tr><td>${item.name}</td><td>${item.address}</td><td>${item.account}</td></tr>`;
+                        });
+                    }
+                } else if (selectedTable === "contracts") {
+                    // Спочатку збагачуємо договори текстовими назвами з довідників для зручності роботи
+                    const fullContracts = contractsArray.map((item) => ({
+                        srvName:
+                            servicesArray[item.serviceIndex]?.name ||
+                            "Невідомо",
+                        custName:
+                            customersArray[item.customerIndex]?.name ||
+                            "Невідомо",
+                        qty: item.quantity.toString(),
+                        deadline: item.deadline,
+                    }));
+
+                    // 3. Фільтрація масиву Договорів
+                    const filteredContracts = fullContracts.filter((item) => {
+                        return (
+                            (filters.col0 === "" ||
+                                item.srvName === filters.col0) &&
+                            (filters.col1 === "" ||
+                                item.custName === filters.col1) &&
+                            item.qty.includes(filters.col2) &&
+                            item.deadline.includes(filters.col3)
+                        );
+                    });
+
+                    // Шапка та Рядок фільтрів (Послуга - Select, Замовник - Select, Кількість - Input, Термін - Input)
+                    tableHtml += `
+                    <tr><th>Послуга (повтор.)</th><th>Замовник (повтор.)</th><th>Кількість</th><th>Термін виконання</th></tr>
+                    <tr class="filter-row">
+                        <td>
+                            <select class="filter-select" onchange="updateFilter('col0', this.value)">
+                                <option value="">Усі</option>
+                                ${getUniqueOptions(filteredContracts, (c) => c.srvName)}
+                            </select>
+                        </td>
+                        <td>
+                            <select class="filter-select" onchange="updateFilter('col1', this.value)">
+                                <option value="">Усі</option>
+                                ${getUniqueOptions(filteredContracts, (c) => c.custName)}
+                            </select>
+                        </td>
+                        <td><input type="text" class="filter-input" value="${filters.col2}" oninput="updateFilter('col2', this.value)" placeholder="Пошук..."></td>
+                        <td><input type="text" class="filter-input" value="${filters.col3}" oninput="updateFilter('col3', this.value)" placeholder="Пошук..."></td>
+                    </tr>`;
+
+                    if (filteredContracts.length === 0) {
+                        tableHtml += `<tr><td colspan="4" class="no-results">Нічого не знайдено</td></tr>`;
+                    } else {
+                        filteredContracts.forEach((item) => {
+                            tableHtml += `<tr><td>${item.srvName}</td><td>${item.custName}</td><td>${item.qty} шт.</td><td>${item.deadline}</td></tr>`;
+                        });
+                    }
+                }
+
+                tableHtml += "</table>";
+                container.innerHTML = tableHtml;
+
+                // Зберігаємо обрані значення у селекторах після перемальовування, щоб вони не скидались до "Усі"
+                if (
+                    filters.col1 &&
+                    document.querySelector(`tr.filter-row select`)
+                ) {
+                    const selects =
+                        document.querySelectorAll(`tr.filter-row select`);
+                    if (selectedTable === "services" && selects[0])
+                        selects[0].value = filters.col1;
+                }
+                if (
+                    selectedTable === "customers" ||
+                    selectedTable === "contracts"
+                ) {
+                    const selects =
+                        document.querySelectorAll(`tr.filter-row select`);
+                    if (selects[0] && filters.col0)
+                        selects[0].value = filters.col0;
+                    if (selects[1] && filters.col1)
+                        selects[1].value = filters.col1;
+                }
+            }
+
+            // Перший запуск
+            render();
+        </script>
+    </body>
+</html>

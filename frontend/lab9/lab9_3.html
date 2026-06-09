@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="uk">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Пошук та виділення тексту (Варіант 7)</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                margin: 40px;
+                background-color: #f4f4f9;
+                color: #333;
+            }
+            .container {
+                max-width: 700px;
+                background: white;
+                padding: 25px;
+                border-radius: 8px;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            }
+            .search-box {
+                width: 100%;
+                padding: 12px;
+                font-size: 16px;
+                border: 2px solid #007bff;
+                border-radius: 6px;
+                box-sizing: border-box;
+                margin-bottom: 20px;
+                outline: none;
+            }
+            .search-box:focus {
+                box-shadow: 0 0 8px rgba(0, 123, 255, 0.5);
+            }
+            .text-block {
+                font-size: 18px;
+                line-height: 1.6;
+                padding: 15px;
+                border: 1px solid #e0e0e0;
+                border-radius: 6px;
+                background-color: #fafafa;
+                text-align: justify;
+            }
+            /* СТИЛЬ ДЛЯ ВАРІАНТА 7: Виділення кольором фону */
+            .highlight {
+                background-color: #ffeb3b; /* Яскраво-жовтий фон */
+                border-radius: 2px;
+                transition: background-color 0.2s ease;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h2>Динамічний пошук у тексті</h2>
+
+            <input
+                type="text"
+                id="searchInput"
+                class="search-box"
+                placeholder="Почніть вводити слово для пошуку..."
+                onkeyup="searchAndHighlight()"
+            />
+
+            <div id="textBlock" class="text-block">
+                Яваскрипт — це динамічна, об'єктно-орієнтована мова
+                програмування, яка найчастіше застосовується для створення
+                інтерактивності на веб-сайтах. Завдяки цій мові ми можемо
+                реалізувати складні функції: живий пошук, анімацію, обробку
+                подій натискання клавіш чи миші. Користувач вводить текст у поле
+                пошуку, а скрипт миттєво реагує на подію підняття клавіші,
+                знаходить потрібні збіги у великому масиві даних та підсвічує їх
+                яскравим кольором фону для максимальної наочності та зручності.
+            </div>
+        </div>
+
+        <script>
+            // Виконується автоматично під час завантаження сторінки (подія load)
+            window.onload = function () {
+                const textBlock = document.getElementById("textBlock");
+                const originalText = textBlock.innerHTML.trim();
+
+                // Розбиваємо текст на окремі елементи (слова, пробіли, розділові знаки)
+                // Регулярний вираз /(\s+)/ зберігає пробіли як окремі елементи масиву
+                const tokens = originalText.split(/(\s+)/);
+
+                // Перетворюємо кожен токен: якщо це слово, огортаємо в <span>
+                const wrappedTokens = tokens.map((token) => {
+                    // Якщо токен складається лише з пробілів — повертаємо його без змін
+                    if (token.trim() === "") {
+                        return token;
+                    }
+                    // Огортаємо слово (разом із прилеглими розділовими знаками) у тег <span>
+                    return `<span>${token}</span>`;
+                });
+
+                // Записуємо оновлений HTML-код назад у блок
+                textBlock.innerHTML = wrappedTokens.join("");
+            };
+
+            // Функція пошуку, яка спрацьовує на подію keyup
+            function searchAndHighlight() {
+                // Отримуємо введене значення та переводимо в нижній регістр для незалежності від регістру
+                const query = document
+                    .getElementById("searchInput")
+                    .value.trim()
+                    .toLowerCase();
+
+                // Отримуємо всі раніше створені елементи span всередині текстового блоку
+                const spans = document.querySelectorAll("#textBlock span");
+
+                spans.forEach((span) => {
+                    // Отримуємо чистий текст всередині span (також у нижньому регістрі)
+                    const wordText = span.textContent.toLowerCase();
+
+                    // Якщо запит не порожній і слово містить пошуковий текст
+                    if (query !== "" && wordText.includes(query)) {
+                        span.classList.add("highlight"); // Додаємо клас виділення кольором фону
+                    } else {
+                        span.classList.remove("highlight"); // Прибираємо виділення, якщо не збігається або поле порожнє
+                    }
+                });
+            }
+        </script>
+    </body>
+</html>

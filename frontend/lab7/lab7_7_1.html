@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="uk">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Динамічний список тварин (Модифікований)</title>
+        <style>
+            body {
+                font-family: "Segoe UI", Arial, sans-serif;
+                background-color: #f4f6f9;
+                padding: 30px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                min-height: 80vh;
+            }
+            .list-card {
+                background: white;
+                padding: 30px;
+                border-radius: 12px;
+                box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+                max-width: 450px;
+                width: 100%;
+                box-sizing: border-box;
+            }
+            h2 {
+                color: #2c3e50;
+                margin-top: 0;
+                border-bottom: 2px solid #3498db;
+                padding-bottom: 10px;
+                font-size: 22px;
+            }
+            .form-group {
+                margin-bottom: 20px;
+            }
+            label {
+                display: block;
+                font-weight: 600;
+                margin-bottom: 8px;
+                color: #34495e;
+            }
+            input[type="text"] {
+                width: 100%;
+                padding: 10px;
+                border: 1px solid #ccc;
+                border-radius: 6px;
+                box-sizing: border-box;
+                font-size: 16px;
+            }
+            input:focus {
+                border-color: #3498db;
+                outline: none;
+                box-shadow: 0 0 5px rgba(52, 152, 219, 0.3);
+            }
+            .btn-container {
+                display: flex;
+                gap: 10px;
+                margin-bottom: 20px;
+            }
+            .btn {
+                flex: 1;
+                font-size: 16px;
+                font-weight: bold;
+                padding: 12px;
+                border: none;
+                border-radius: 6px;
+                cursor: pointer;
+                transition: background-color 0.2s;
+                color: white;
+            }
+            .btn-add {
+                background-color: #2ecc71;
+            }
+            .btn-add:hover {
+                background-color: #27ae60;
+            }
+            .btn-remove {
+                background-color: #e74c3c;
+            }
+            .btn-remove:hover {
+                background-color: #c0392b;
+            }
+            /* Стилізація маркованого списку */
+            ul {
+                list-style-type: none;
+                padding: 0;
+                margin: 0;
+            }
+            li {
+                background: #f8f9fa;
+                margin-bottom: 8px;
+                padding: 10px 15px;
+                border-left: 4px solid #3498db;
+                border-radius: 0 6px 6px 0;
+                color: #2c3e50;
+                font-size: 16px;
+                word-wrap: break-word;
+                cursor: pointer; /* Змінюємо курсор, щоб показати, що на елемент можна клікнути */
+                user-select: none; /* Запобігає випадковому виділенню тексту при подвійному кліку */
+                transition:
+                    background-color 0.2s,
+                    color 0.2s;
+                animation: fadeIn 0.3s ease;
+            }
+
+            /* КЛАС ДЛЯ ВИДІЛЕНОГО ЕЛЕМЕНТА (Інверсія кольорів) */
+            li.selected {
+                background: #2c3e50; /* Темний фон замість світлого */
+                color: #f8f9fa; /* Світлий текст замість темного */
+                border-left-color: #e74c3c; /* Зміна кольору лівої лінії для акценту */
+            }
+
+            @keyframes fadeIn {
+                from {
+                    opacity: 0;
+                    transform: translateY(-5px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="list-card">
+            <h2><label>Світ тварин</label></h2>
+
+            <form onsubmit="event.preventDefault()">
+                <div class="form-group">
+                    <label for="animalInput">Введіть назву тварини:</label>
+                    <input
+                        type="text"
+                        id="animalInput"
+                        placeholder="Наприклад: Лев, Панда, Дельфін..."
+                    />
+                </div>
+
+                <div class="btn-container">
+                    <button type="button" id="addBtn" class="btn btn-add">
+                        Додати
+                    </button>
+                    <button type="button" id="removeBtn" class="btn btn-remove">
+                        Видалити
+                    </button>
+                </div>
+            </form>
+
+            <ul id="animalsList"></ul>
+        </div>
+
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                // Отримання посилань на елементи DOM
+                const animalInput = document.getElementById("animalInput");
+                const addBtn = document.getElementById("addBtn");
+                const removeBtn = document.getElementById("removeBtn");
+                const list = document.getElementById("animalsList");
+
+                // 1. Скрипт для кнопки "Додати"
+                addBtn.addEventListener("click", function () {
+                    const inputValue = animalInput.value.trim();
+
+                    // Перевірка, чи текстове поле не порожнє
+                    if (inputValue !== "") {
+                        // Створення нового елемента списку через createElement
+                        const newLi = document.createElement("li");
+
+                        // Запис тексту в елемент
+                        newLi.textContent = inputValue;
+
+                        // МОДИФІКАЦІЯ: Додаємо подію кліку для виділення елемента
+                        newLi.addEventListener("click", function () {
+                            // toggle перемикає клас: якщо є — видаляє, якщо немає — додає
+                            newLi.classList.toggle("selected");
+                        });
+
+                        // Додавання елемента в кінець списку за допомогою appendChild
+                        list.appendChild(newLi);
+
+                        // Очищення поля після успішного додавання та повернення фокусу
+                        animalInput.value = "";
+                        animalInput.focus();
+                    } else {
+                        alert(
+                            "Будь ласка, введіть назву тварини перед додаванням!",
+                        );
+                    }
+                });
+
+                // 2. МОДИФІКАЦІЯ: Скрипт для кнопки "Видалити" (Видаляє ВИДІЛЕНІ елементи)
+                removeBtn.addEventListener("click", function () {
+                    // Знаходимо всі елементи списку, які мають клас 'selected'
+                    const selectedItems = list.querySelectorAll("li.selected");
+
+                    // Перевіряємо, чи є виділені елементи
+                    if (selectedItems.length > 0) {
+                        // Циклом проходимо по кожному знайденому елементу і видаляємо його
+                        selectedItems.forEach(function (item) {
+                            list.removeChild(item); // або просто item.remove();
+                        });
+                    } else {
+                        // Якщо нічого не виділено, перевіряємо чи взагалі є елементи в списку
+                        if (list.children.length === 0) {
+                            alert("Список тварин порожній!");
+                        } else {
+                            alert(
+                                "Будь ласка, спочатку виділіть елементи (кліком миші), які хочете видалити!",
+                            );
+                        }
+                    }
+                });
+            });
+        </script>
+    </body>
+</html>

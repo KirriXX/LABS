@@ -1,0 +1,319 @@
+<!doctype html>
+<html lang="uk">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Динамічна таблиця тварин (Варіант 7)</title>
+        <style>
+            body {
+                font-family: "Segoe UI", Arial, sans-serif;
+                background-color: #f4f6f9;
+                padding: 30px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                min-height: 100vh;
+                margin: 0;
+            }
+            .table-card {
+                background: white;
+                padding: 30px;
+                border-radius: 12px;
+                box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+                max-width: 900px;
+                width: 100%;
+                box-sizing: border-box;
+                margin-bottom: 20px;
+            }
+            h2 {
+                color: #2c3e50;
+                margin-top: 0;
+                border-bottom: 2px solid #3498db;
+                padding-bottom: 10px;
+                font-size: 22px;
+            }
+            /* Сітка для 5 полів введення */
+            .inputs-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                gap: 12px;
+                margin-bottom: 20px;
+            }
+            .form-group {
+                display: flex;
+                flex-direction: column;
+            }
+            label {
+                font-weight: 600;
+                margin-bottom: 6px;
+                color: #34495e;
+                font-size: 14px;
+            }
+            input[type="text"],
+            input[type="number"] {
+                width: 100%;
+                padding: 10px;
+                border: 1px solid #ccc;
+                border-radius: 6px;
+                box-sizing: border-box;
+                font-size: 14px;
+            }
+            input:focus {
+                border-color: #3498db;
+                outline: none;
+                box-shadow: 0 0 5px rgba(52, 152, 219, 0.3);
+            }
+            .btn-container {
+                display: flex;
+                gap: 15px;
+                margin-bottom: 25px;
+                justify-content: center;
+            }
+            .btn {
+                min-width: 150px;
+                font-size: 16px;
+                font-weight: bold;
+                padding: 12px;
+                border: none;
+                border-radius: 6px;
+                cursor: pointer;
+                transition: background-color 0.2s;
+                color: white;
+            }
+            .btn-add {
+                background-color: #2ecc71;
+            }
+            .btn-add:hover {
+                background-color: #27ae60;
+            }
+            .btn-remove {
+                background-color: #e74c3c;
+            }
+            .btn-remove:hover {
+                background-color: #c0392b;
+            }
+            /* Стилізація інтерактивної таблиці */
+            .table-container {
+                overflow-x: auto;
+                width: 100%;
+            }
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 10px;
+                text-align: left;
+            }
+            th,
+            td {
+                padding: 12px 15px;
+                border-bottom: 1px solid #e1e8ed;
+                font-size: 15px;
+            }
+            th {
+                background-color: #3498db;
+                color: white;
+                font-weight: 600;
+            }
+            tr:nth-child(even) {
+                background-color: #f8f9fa;
+            }
+            tr {
+                animation: fadeIn 0.3s ease;
+            }
+            .empty-row {
+                text-align: center;
+                color: #7f8c8d;
+                font-style: italic;
+            }
+            @keyframes fadeIn {
+                from {
+                    opacity: 0;
+                    transform: translateY(-5px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="table-card">
+            <h2>Реєстр тваринного світу</h2>
+
+            <form id="animalForm" onsubmit="event.preventDefault()">
+                <div class="inputs-grid">
+                    <div class="form-group">
+                        <label for="nameInp">Назва тварини:</label>
+                        <input
+                            type="text"
+                            id="nameInp"
+                            placeholder="напр. Тигр"
+                        />
+                    </div>
+                    <div class="form-group">
+                        <label for="classInp">Клас:</label>
+                        <input
+                            type="text"
+                            id="classInp"
+                            placeholder="напр. Ссавці"
+                        />
+                    </div>
+                    <div class="form-group">
+                        <label for="habitatInp">Середовище існування:</label>
+                        <input
+                            type="text"
+                            id="habitatInp"
+                            placeholder="напр. Азіатські ліси"
+                        />
+                    </div>
+                    <div class="form-group">
+                        <label for="lifespanInp">Вік (років):</label>
+                        <input
+                            type="number"
+                            id="lifespanInp"
+                            min="1"
+                            placeholder="напр. 15"
+                        />
+                    </div>
+                    <div class="form-group">
+                        <label for="statusInp">Статус охорони:</label>
+                        <input
+                            type="text"
+                            id="statusInp"
+                            placeholder="напр. Вимираючий"
+                        />
+                    </div>
+                </div>
+
+                <div class="btn-container">
+                    <button type="button" id="addBtn" class="btn btn-add">
+                        Додати запис
+                    </button>
+                    <button type="button" id="removeBtn" class="btn btn-remove">
+                        Видалити рядок
+                    </button>
+                </div>
+            </form>
+
+            <div class="table-container">
+                <table id="animalsTable">
+                    <thead>
+                        <tr>
+                            <th>Назва тварини</th>
+                            <th>Клас</th>
+                            <th>Середовище існування</th>
+                            <th>Тривалість життя</th>
+                            <th>Статус охорони</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                        <tr id="emptyPlaceholder">
+                            <td colspan="5" class="empty-row">
+                                Таблиця порожня. Додайте першу тварину.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                // Отримання посилань на елементи полів введення
+                const nameInp = document.getElementById("nameInp");
+                const classInp = document.getElementById("classInp");
+                const habitatInp = document.getElementById("habitatInp");
+                const lifespanInp = document.getElementById("lifespanInp");
+                const statusInp = document.getElementById("statusInp");
+
+                // Посилання на кнопки та тіло таблиці
+                const addBtn = document.getElementById("addBtn");
+                const removeBtn = document.getElementById("removeBtn");
+                const tableBody = document.getElementById("tableBody");
+                const placeholder = document.getElementById("emptyPlaceholder");
+
+                // 1. Скрипт для кнопки "Додати" (createElement + appendChild)
+                addBtn.addEventListener("click", function () {
+                    // Зчитуємо та очищаємо пробіли з усіх полів
+                    const name = nameInp.value.trim();
+                    const animalClass = classInp.value.trim();
+                    const habitat = habitatInp.value.trim();
+                    const lifespan = lifespanInp.value.trim();
+                    const status = statusInp.value.trim();
+
+                    // Перевірка: рядок додається лише якщо абсолютно всі 5 полів заповнені
+                    if (
+                        name !== "" &&
+                        animalClass !== "" &&
+                        habitat !== "" &&
+                        lifespan !== "" &&
+                        status !== ""
+                    ) {
+                        // Якщо це перший запис — прибираємо технічний напис "Таблиця порожня"
+                        if (placeholder) {
+                            placeholder.remove();
+                        }
+
+                        // Створюємо новий рядок таблиці <tr> через createElement
+                        const newRow = document.createElement("tr");
+
+                        // Масив значень для спрощеного створення комірок <td> в циклі
+                        const rowData = [
+                            name,
+                            animalClass,
+                            habitat,
+                            lifespan + " років",
+                            status,
+                        ];
+
+                        // Перебираємо дані й створюємо 5 комірок <td>, додаючи їх у рядок
+                        for (let i = 0; i < rowData.length; i++) {
+                            const newCell = document.createElement("td");
+                            newCell.textContent = rowData[i];
+                            newRow.appendChild(newCell); // Монтуємо комірку в рядок
+                        }
+
+                        // Додаємо повністю сформований рядок у кінець тіла таблиці (appendChild)
+                        tableBody.appendChild(newRow);
+
+                        // Очищаємо всі текстові поля для нового введення
+                        document.getElementById("cubeForm")?.reset(); // на випадок використання форми
+                        nameInp.value = "";
+                        classInp.value = "";
+                        habitatInp.value = "";
+                        lifespanInp.value = "";
+                        statusInp.value = "";
+
+                        nameInp.focus(); // повертаємо фокус на перше поле
+                    } else {
+                        alert(
+                            "Помилка: Заповніть усі 5 полів введення параметрів тварини!",
+                        );
+                    }
+                });
+
+                // 2. Скрипт для кнопки "Видалити" (Варіант 7: Видаляє ПЕРШИЙ рядок з даними)
+                removeBtn.addEventListener("click", function () {
+                    // Знаходимо саме перший дочірній елемент (тег <tr>) всередині <tbody>
+                    const firstRow = tableBody.firstElementChild;
+
+                    // Перевіряємо, чи є в таблиці рядки і чи це не технічний рядок-заглушка
+                    if (firstRow && firstRow.id !== "emptyPlaceholder") {
+                        // Видаляємо перший рядок за допомогою removeChild
+                        tableBody.removeChild(firstRow);
+
+                        // Якщо після видалення таблиця спорожніла — повертаємо красиву заглушку
+                        if (tableBody.children.length === 0) {
+                            tableBody.appendChild(placeholder);
+                        }
+                    } else {
+                        alert(
+                            "У таблиці немає даних про тварин для видалення!",
+                        );
+                    }
+                });
+            });
+        </script>
+    </body>
+</html>
